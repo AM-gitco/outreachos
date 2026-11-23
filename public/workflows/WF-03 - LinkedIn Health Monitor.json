@@ -1,0 +1,512 @@
+{
+  "name": "WF-03 - LinkedIn Health Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -16,
+        -160
+      ],
+      "id": "15d24aac-9db2-44ef-a81c-f3527967ff0d",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_config",
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -160
+      ],
+      "id": "e1ec02ea-9b7c-48b4-ad30-7ce7cf83438b",
+      "name": "Get Outreach Config",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "5496c0d8-ea13-4e86-a19d-fd5dd89fdc2a",
+              "leftValue": "={{ $json.health_state }}",
+              "rightValue": "red",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        2000,
+        -160
+      ],
+      "id": "71681b78-9ac0-4dff-8af5-3cccc3a773f2",
+      "name": "LinkedIn Health Red?"
+    },
+    {
+      "parameters": {
+        "chatId": "-1003811814921",
+        "text": "=🚨 LINKEDIN ACCOUNT HEALTH ALERT  Account: {{ $json.account_name }} Health: RED  LinkedIn activity is paused. Please check the account for restrictions before resuming.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2224,
+        -160
+      ],
+      "id": "dae199a4-8c4d-43f9-a3e4-7d221e88a5a5",
+      "name": "Send Health Alert",
+      "webhookId": "4c5b2d56-c2bb-4a29-b509-f77139c1cf9a",
+      "credentials": {
+        "telegramApi": {
+          "id": "8NYHi7lgI6qzk4IP",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $('Get GetSales LinkedIn Accounts').first().json;\nconst accounts = response.data || [];\n\nconst config = $('Get Outreach Config').first().json.config.linkedin;\n\nreturn accounts.map(account => ({\n  json: {\n    getsales_account_uuid: account.uuid,\n    account_name: account.nickname || 'Unknown Account',\n    getsales_data: account,\n    config\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        -160
+      ],
+      "id": "02f7ebf8-7dba-4f79-a343-be9dd9fc4bec",
+      "name": "Prepare & Match LinkedIn Accounts"
+    },
+    {
+      "parameters": {
+        "url": "https://amazing.getsales.io/flows/api/linkedin-accounts",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        208,
+        -160
+      ],
+      "id": "883b40a2-23cd-48d4-9ef4-3d71d66fb412",
+      "name": "Get GetSales LinkedIn Accounts"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "linkedin_accounts",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "getsales_account_uuid",
+              "condition": "eq",
+              "keyValue": "={{ $json.getsales_account_uuid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -160
+      ],
+      "id": "3eeada12-e873-45c7-9174-130e866e9c84",
+      "name": "Find Existing LinkedIn Account",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "700a1df4-1c01-4f7c-95f2-8b74a8badd84",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1104,
+        -160
+      ],
+      "id": "18950116-bf7b-4d7d-9951-5ed38f70798b",
+      "name": "Account Already Exists?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "linkedin_accounts",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "account_name",
+              "fieldValue": "={{ $('Prepare & Match LinkedIn Accounts').item.json.account_name }}"
+            },
+            {
+              "fieldId": "getsales_account_uuid",
+              "fieldValue": "={{ $('Prepare & Match LinkedIn Accounts').item.json.getsales_account_uuid }}"
+            },
+            {
+              "fieldId": "getsales_data",
+              "fieldValue": "={{ $('Prepare & Match LinkedIn Accounts').item.json.getsales_data }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        -64
+      ],
+      "id": "861788ed-99be-4fcd-aca6-3b02744cfc94",
+      "name": "Create New LinkedIn Account",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "linkedin_accounts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('Find Existing LinkedIn Account').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "account_name",
+              "fieldValue": "={{ $('Prepare & Match LinkedIn Accounts').item.json.account_name }}"
+            },
+            {
+              "fieldId": "getsales_account_uuid",
+              "fieldValue": "={{ $('Prepare & Match LinkedIn Accounts').item.json.getsales_account_uuid }}"
+            },
+            {
+              "fieldId": "getsales_data",
+              "fieldValue": "={{ $('Prepare & Match LinkedIn Accounts').item.json.getsales_data }}"
+            },
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        -256
+      ],
+      "id": "00532aca-b0a9-4cc5-b399-caee00282fc3",
+      "name": "Update Existing LinkedIn Account",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const account = $json;\nconst config = $('Get Outreach Config').first().json.config.linkedin;\n\nconst restricted = account.restriction_detected === true;\n\nconst red =\n  restricted ||\n  account.sent_today >= config.max_daily_requests ||\n  account.sent_this_week >= config.max_weekly_requests;\n\nconst yellow =\n  account.pending_invites >= config.max_pending_invites ||\n  account.acceptance_rate < config.min_acceptance_rate;\n\nlet health_state = 'green';\n\nif (red) health_state = 'red';\nelse if (yellow) health_state = 'yellow';\n\nreturn {\n  json: {\n    id: account.id,\n    account_name: account.account_name,\n    health_state,\n    restriction_detected: restricted,\n    updated_at: new Date().toISOString()\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1552,
+        -160
+      ],
+      "id": "e3a811b1-a04a-48d2-9a5e-bfd1a3a86425",
+      "name": "Evaluate LinkedIn Health"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "linkedin_accounts",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "health_state",
+              "fieldValue": "={{ $json.health_state }}"
+            },
+            {
+              "fieldId": "restriction_detected",
+              "fieldValue": "={{ $json.restriction_detected }}"
+            },
+            {
+              "fieldId": "updated_at",
+              "fieldValue": "={{ $json.updated_at }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1776,
+        -160
+      ],
+      "id": "ef0a1fa5-3474-4fc9-9260-06304719cbeb",
+      "name": "Update LinkedIn Health",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get GetSales LinkedIn Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Outreach Config": {
+      "main": [
+        [
+          {
+            "node": "Prepare & Match LinkedIn Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Health Red?": {
+      "main": [
+        [
+          {
+            "node": "Send Health Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare & Match LinkedIn Accounts": {
+      "main": [
+        [
+          {
+            "node": "Find Existing LinkedIn Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get GetSales LinkedIn Accounts": {
+      "main": [
+        [
+          {
+            "node": "Get Outreach Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing LinkedIn Account": {
+      "main": [
+        [
+          {
+            "node": "Account Already Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Account Already Exists?": {
+      "main": [
+        [
+          {
+            "node": "Update Existing LinkedIn Account",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create New LinkedIn Account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing LinkedIn Account": {
+      "main": [
+        [
+          {
+            "node": "Evaluate LinkedIn Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate LinkedIn Health": {
+      "main": [
+        [
+          {
+            "node": "Update LinkedIn Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create New LinkedIn Account": {
+      "main": [
+        [
+          {
+            "node": "Evaluate LinkedIn Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update LinkedIn Health": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Health Red?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "c307fed4-6692-416b-85fc-4fa1ec653b80",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "TbPYDiSpLarJQmvJ",
+  "tags": []
+}

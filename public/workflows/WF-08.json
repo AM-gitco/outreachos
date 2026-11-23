@@ -1,0 +1,1061 @@
+{
+  "name": "WF-08 — GetSales Task Monitor",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -80,
+        0
+      ],
+      "id": "07430eac-5acc-4a13-8fe5-95520dbeeaac",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://amazing.getsales.io/flows/api/tasks",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            },
+            {
+              "name": "order_field",
+              "value": "created_at"
+            },
+            {
+              "name": "order_type",
+              "value": "desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        144,
+        0
+      ],
+      "id": "0924b705-5724-4b6d-bcbd-67b26c074231",
+      "name": "GetSales - Get Recent Tasks"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4d8a6dbd-a8c9-4904-b050-42926ebe9eb1",
+              "leftValue": "={{ ($json.data ?? []).some(task => task.lead_uuid === $('Preserve Lead + Enrollment Data').first().json.getsales_lead_uuid) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        784,
+        1424
+      ],
+      "id": "c69ae042-7e3e-4676-9e99-cd2db8fac374",
+      "name": "Matching Lead Task Found?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst tasks = response.data ?? [];\n\nreturn tasks.map(task => ({\n  json: {\n    task_uuid: task.uuid,\n    lead_uuid: task.lead_uuid,\n    enrollment_uuid: task.flow_lead_uuid,\n    task_type: task.type,\n    task_status: task.status,\n    error_msg: task.error_msg,\n    executed_at: task.executed_at,\n    created_at: task.created_at\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        368,
+        0
+      ],
+      "id": "7c6b0326-d949-4f7a-86ba-8fb9d33c6e03",
+      "name": "Extract GetSales Tasks"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "getsales_lead_uuid",
+              "condition": "eq",
+              "keyValue": "={{ $json.lead_uuid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        592,
+        0
+      ],
+      "id": "73366094-96e1-42e8-84d0-be6af5493bca",
+      "name": "Find Prospect by GetSales Lead ID",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "046016f2-3aa4-403d-9502-303a108f5f2e",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        816,
+        0
+      ],
+      "id": "0683e107-6b5a-44de-9175-5a2759eea095",
+      "name": "Is Prospect Found?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "9f768022-370d-432d-9242-3eafa4429bbf",
+              "leftValue": "={{ $('Extract GetSales Tasks').item.json.task_status.toLowerCase() }}",
+              "rightValue": "done",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1040,
+        0
+      ],
+      "id": "0f043c24-6875-4b02-97ef-3ab0e93c026c",
+      "name": "Is GetSales Task Done?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "07f98837-abff-4d28-aeb1-b80286283622",
+              "leftValue": "={{ $('Extract GetSales Tasks').item.json.task_status.toLowerCase() }}",
+              "rightValue": "failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1264,
+        96
+      ],
+      "id": "00706900-a9a7-4c52-92b0-7ccc34196450",
+      "name": "Is GetSales Task Failed?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "request_sent"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "{{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1264,
+        -96
+      ],
+      "id": "07b80b2c-c7a1-4ae9-809e-9f88612e69f8",
+      "name": "Mark GetSales Action Sent",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "failed"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "{{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        0
+      ],
+      "id": "6107d8a0-5d82-49fa-b954-4ce71cb0317a",
+      "name": "Mark GetSales Action Failed",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "{{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1488,
+        192
+      ],
+      "id": "76b1a58f-d6a6-4fce-9818-584809857722",
+      "name": "Mark GetSales Action Failed1",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "getsales-connection-status",
+        "authentication": "headerAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -80,
+        736
+      ],
+      "id": "88a62c24-3c9d-4284-b065-0751c6fb4027",
+      "name": "Webhook",
+      "webhookId": "e6d90ea8-6c5e-4f58-bc32-db8cb7ad85e8",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Rfu8xhks11DziXHT",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "linkedin_connected",
+              "fieldValue": "=true"
+            },
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "null"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        832,
+        752
+      ],
+      "id": "a64581fe-9a18-4d08-a432-77a01d74fbdf",
+      "name": "Update Prospect — Connected",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e500cca7-1273-4f15-8967-ffcc4e16ed3e",
+              "leftValue": "={{ $('Webhook').first().json.body.connection_result }}",
+              "rightValue": "connected",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        608,
+        848
+      ],
+      "id": "3175292d-7d50-4f0f-b8c4-7353d29a3ae9",
+      "name": "Was LinkedIn Connection Accepted?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "getsales_lead_uuid",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.getsales_lead_uuid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        144,
+        736
+      ],
+      "id": "17b46866-3122-4ff5-b5dd-a00d129042a7",
+      "name": "Find Prospect by GetSales Lead UUID",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "linkedin_connected",
+              "fieldValue": "=false"
+            },
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "failed"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        832,
+        944
+      ],
+      "id": "7c8e5dac-ab33-424b-8676-933812d6514e",
+      "name": "Update Prospect — Not Connected",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e959486b-c13e-464c-a808-00f51c743299",
+              "leftValue": "={{ $('Webhook').first().json.body.connection_result }}",
+              "rightValue": "message_sent",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        368,
+        736
+      ],
+      "id": "c85060e8-7e5e-440e-8d07-f0cb392637da",
+      "name": "Is LinkedIn Message Sent?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "prospect_id",
+              "fieldValue": "={{ $('Find Prospect by GetSales Lead UUID').first().json.id }}"
+            },
+            {
+              "fieldId": "step",
+              "fieldValue": "={{ Number($('Find Prospect by GetSales Lead UUID').first().json.current_step) + 1 }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "linkedin"
+            },
+            {
+              "fieldId": "action",
+              "fieldValue": "linkedin_message"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $('Webhook').first().json.body.message }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        608,
+        544
+      ],
+      "id": "e389385f-2fd8-4512-862f-8580515c1dec",
+      "name": "Log Successful LinkedIn Message",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_config",
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        864,
+        544
+      ],
+      "id": "5c0f5a9d-ddc5-4c61-a34d-14df1b59efdd",
+      "name": "Get LinkedIn Scheduling Config",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const prospect = $('Find Prospect by GetSales Lead UUID').first().json;\nconst config = $input.item.json.config.scheduling;\n\nconst step = Number(prospect.current_step) + 1;\nconst timezone = prospect.timezone || config.default_timezone;\n\nconst minDays = Number(config.delay_business_days_min);\nconst maxDays = Number(config.delay_business_days_max);\nconst startHour = Number(config.business_start_hour);\n\nif (!timezone || minDays < 1 || maxDays < minDays) {\n  throw new Error('Invalid scheduling configuration');\n}\n\nfunction localParts(date) {\n  const parts = new Intl.DateTimeFormat('en-US', {\n    timeZone: timezone,\n    year: 'numeric',\n    month: 'numeric',\n    day: 'numeric'\n  }).formatToParts(date);\n\n  const result = {};\n  for (const p of parts) {\n    if (p.type !== 'literal') result[p.type] = Number(p.value);\n  }\n  return result;\n}\n\nfunction localToUTC(year, month, day, hour) {\n  const target = Date.UTC(year, month - 1, day, hour);\n  let guess = target;\n\n  for (let i = 0; i < 4; i++) {\n    const parts = new Intl.DateTimeFormat('en-US', {\n      timeZone: timezone,\n      year: 'numeric',\n      month: 'numeric',\n      day: 'numeric',\n      hour: 'numeric',\n      hourCycle: 'h23'\n    }).formatToParts(new Date(guess));\n\n    const p = {};\n    for (const part of parts) {\n      if (part.type !== 'literal') p[part.type] = Number(part.value);\n    }\n\n    guess += target - Date.UTC(p.year, p.month - 1, p.day, p.hour);\n  }\n\n  return new Date(guess);\n}\n\nfunction nextSendAt() {\n  const delay = Math.floor(Math.random() * (maxDays - minDays + 1)) + minDays;\n  const now = localParts(new Date());\n  const date = new Date(Date.UTC(now.year, now.month - 1, now.day));\n\n  let added = 0;\n  while (added < delay) {\n    date.setUTCDate(date.getUTCDate() + 1);\n    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) added++;\n  }\n\n  return localToUTC(\n    date.getUTCFullYear(),\n    date.getUTCMonth() + 1,\n    date.getUTCDate(),\n    startHour\n  ).toISOString();\n}\n\nreturn {\n  json: {\n    prospect_id: prospect.id,\n    step,\n    next_send_at: step < 5 ? nextSendAt() : null,\n    status: step === 5 ? 'completed' : 'active'\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        544
+      ],
+      "id": "8c1772e3-54d2-41f5-94c6-f5a30bf718fd",
+      "name": "Prepare LinkedIn Progress"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.prospect_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "current_step",
+              "fieldValue": "={{ $json.step }}"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ $json.next_send_at }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        544
+      ],
+      "id": "67f1c959-9aac-4b84-958e-566b45ee15ca",
+      "name": "Update LinkedIn Prospect Progress",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "GetSales - Get Recent Tasks": [
+      {
+        "json": {
+          "data": [
+            {
+              "uuid": "9e9530f0-f582-4264-89ee-b12faeaf8fd0",
+              "parent_task_pipeline_uuid": null,
+              "team_id": 14466,
+              "assigned_to": 16777,
+              "flow_lead_uuid": "e60368e3-80ea-4dd6-80a0-d40f4967a537",
+              "flow_uuid": "56798720-1c12-44ab-a831-a8792f93dab4",
+              "flow_origin": "automation",
+              "flow_node_id": 2,
+              "sender_profile_uuid": "b29a23ad-f401-405f-b81d-762a1d6a08bb",
+              "mailbox_uuid": null,
+              "lead_uuid": "21c9d326-bda7-47dd-b090-4a6aa5abd39f",
+              "company_uuid": "0fad8189-92e4-41c2-b149-a2c003624c5b",
+              "type": "linkedin_send_connection_request",
+              "automation": "auto",
+              "automation_error_code": null,
+              "status": "failed",
+              "fork_result": null,
+              "payload": [],
+              "attempts": 0,
+              "error_msg": "Contact does not have a valid LinkedIn",
+              "timezone": null,
+              "number_in_line": null,
+              "priority": 1,
+              "schedule_at": "2026-11-22T17:32:32.000000Z",
+              "executed_at": null,
+              "taken_to_execute_at": null,
+              "user_id": 0,
+              "created_at": "2026-11-22T17:32:32.000000Z",
+              "updated_at": "2026-11-22T17:32:32.000000Z"
+            },
+            {
+              "uuid": "29f3f1b8-77b3-406b-a77e-ae638df512ad",
+              "parent_task_pipeline_uuid": null,
+              "team_id": 14466,
+              "assigned_to": 16777,
+              "flow_lead_uuid": "97a6026d-37ee-43cf-88ab-1aebc09e16e6",
+              "flow_uuid": "56798720-1c12-44ab-a831-a8792f93dab4",
+              "flow_origin": "automation",
+              "flow_node_id": 2,
+              "sender_profile_uuid": "b29a23ad-f401-405f-b81d-762a1d6a08bb",
+              "mailbox_uuid": null,
+              "lead_uuid": "e744104f-a55e-4e23-bc9d-3cdf91cc56eb",
+              "company_uuid": "4f8bac48-b35b-4209-aa1f-5458059e8efd",
+              "type": "linkedin_send_connection_request",
+              "automation": "auto",
+              "automation_error_code": null,
+              "status": "failed",
+              "fork_result": null,
+              "payload": [],
+              "attempts": 0,
+              "error_msg": "Contact does not have a valid LinkedIn",
+              "timezone": null,
+              "number_in_line": null,
+              "priority": 1,
+              "schedule_at": "2026-11-22T17:32:32.000000Z",
+              "executed_at": null,
+              "taken_to_execute_at": null,
+              "user_id": 0,
+              "created_at": "2026-11-22T17:32:32.000000Z",
+              "updated_at": "2026-11-22T17:32:32.000000Z"
+            },
+            {
+              "uuid": "972b508c-8691-466c-8a52-ac1cd0242f3f",
+              "parent_task_pipeline_uuid": null,
+              "team_id": 14466,
+              "assigned_to": 16777,
+              "flow_lead_uuid": "4c05670c-e5cc-42e1-9da2-08f73d2a6636",
+              "flow_uuid": "56798720-1c12-44ab-a831-a8792f93dab4",
+              "flow_origin": "automation",
+              "flow_node_id": 2,
+              "sender_profile_uuid": "b29a23ad-f401-405f-b81d-762a1d6a08bb",
+              "mailbox_uuid": null,
+              "lead_uuid": "f58a1bd1-e5b1-456b-bc4b-3878ebaa3e92",
+              "company_uuid": "4f8bac48-b35b-4209-aa1f-5458059e8efd",
+              "type": "linkedin_send_connection_request",
+              "automation": "auto",
+              "automation_error_code": null,
+              "status": "failed",
+              "fork_result": null,
+              "payload": [],
+              "attempts": 0,
+              "error_msg": "Contact does not have a valid LinkedIn",
+              "timezone": null,
+              "number_in_line": null,
+              "priority": 1,
+              "schedule_at": "2026-11-22T17:32:32.000000Z",
+              "executed_at": null,
+              "taken_to_execute_at": null,
+              "user_id": 0,
+              "created_at": "2026-11-22T17:32:32.000000Z",
+              "updated_at": "2026-11-22T17:32:32.000000Z"
+            }
+          ],
+          "limit": 100,
+          "offset": 0,
+          "total": 3,
+          "has_more": false
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "GetSales - Get Recent Tasks": {
+      "main": [
+        [
+          {
+            "node": "Extract GetSales Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "GetSales - Get Recent Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract GetSales Tasks": {
+      "main": [
+        [
+          {
+            "node": "Find Prospect by GetSales Lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Prospect by GetSales Lead ID": {
+      "main": [
+        [
+          {
+            "node": "Is Prospect Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Prospect Found?": {
+      "main": [
+        [
+          {
+            "node": "Is GetSales Task Done?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is GetSales Task Done?": {
+      "main": [
+        [
+          {
+            "node": "Mark GetSales Action Sent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Is GetSales Task Failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is GetSales Task Failed?": {
+      "main": [
+        [
+          {
+            "node": "Mark GetSales Action Failed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark GetSales Action Failed1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Find Prospect by GetSales Lead UUID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Was LinkedIn Connection Accepted?": {
+      "main": [
+        [
+          {
+            "node": "Update Prospect — Connected",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Prospect — Not Connected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Prospect by GetSales Lead UUID": {
+      "main": [
+        [
+          {
+            "node": "Is LinkedIn Message Sent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is LinkedIn Message Sent?": {
+      "main": [
+        [
+          {
+            "node": "Log Successful LinkedIn Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Was LinkedIn Connection Accepted?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn Scheduling Config": {
+      "main": [
+        [
+          {
+            "node": "Prepare LinkedIn Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LinkedIn Progress": {
+      "main": [
+        [
+          {
+            "node": "Update LinkedIn Prospect Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Successful LinkedIn Message": {
+      "main": [
+        [
+          {
+            "node": "Get LinkedIn Scheduling Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "8e57a535-437b-44c1-abde-b4a32b162aa1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "9Zie3rnYTB0ULNTD",
+  "tags": []
+}

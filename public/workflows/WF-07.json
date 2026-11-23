@@ -1,0 +1,157 @@
+{
+  "name": "WF-07 — Outreach Error Recovery",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "afef0228-d780-4b59-9002-6a578cd7db86",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "const errorData = $input.first().json;\n\nconst workflowName = errorData.workflow?.name || 'Unknown Workflow';\nconst executionId = errorData.execution?.id || 'Unavailable';\nconst executionUrl = errorData.execution?.url || 'Unavailable';\nconst failedNode = errorData.execution?.lastNodeExecuted || 'Unknown Node';\nconst errorMessage =\n  errorData.execution?.error?.message || 'No error message available';\n\nreturn [{\n  json: {\n    workflow_name: workflowName,\n    execution_id: executionId,\n    failed_node: failedNode,\n    error_message: errorMessage,\n    execution_url: executionUrl,\n    telegram_message:\n`🚨 WORKFLOW ERROR ALERT\n\nWorkflow: ${workflowName}\nFailed Node: ${failedNode}\n\nError:\n${errorMessage}\n\nExecution ID: ${executionId}\nExecution: ${executionUrl}`\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -48
+      ],
+      "id": "fedce43a-c94c-4db8-b93a-7ef2a5be9eff",
+      "name": "Format Error Details"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "automation_errors",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "workflow_name",
+              "fieldValue": "={{ $json.workflow_name }}"
+            },
+            {
+              "fieldId": "execution_id",
+              "fieldValue": "={{ $json.execution_id }}"
+            },
+            {
+              "fieldId": "failed_node",
+              "fieldValue": "={{ $json.failed_node }}"
+            },
+            {
+              "fieldId": "error_message",
+              "fieldValue": "={{ $json.error_message }}"
+            },
+            {
+              "fieldId": "execution_url",
+              "fieldValue": "={{ $json.execution_url }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "open"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $now }}"
+            },
+            {
+              "fieldId": "telegram_message",
+              "fieldValue": "={{ $json.telegram_message }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -48
+      ],
+      "id": "3325b205-63d1-441d-b395-00b161301c7b",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-1003811814921",
+        "text": "={{ $json.telegram_message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        -48
+      ],
+      "id": "59059b50-4380-4654-8c33-375dccd14129",
+      "name": "Send Alert",
+      "webhookId": "c2cb06a8-74d9-4306-a21b-746df89a5df5",
+      "credentials": {
+        "telegramApi": {
+          "id": "8NYHi7lgI6qzk4IP",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Format Error Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Error Details": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "405c00b1-306f-4886-81cc-20f81ba1801f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "HYOqwn4rscn2EqOT",
+  "tags": []
+}

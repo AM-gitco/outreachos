@@ -1,0 +1,2320 @@
+{
+  "name": "WF-04 - Outreach Sender",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -240,
+        -256
+      ],
+      "id": "93423ad3-c5c2-4da5-903f-e04c9aa6b7d7",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "linkedin_accounts",
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        -64
+      ],
+      "id": "a12c5cb5-fbbd-42dc-a543-16c879447a35",
+      "name": "Get LinkedIn Account Health",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e787dbfd-f3ee-4c7f-b605-054570a74b14",
+              "leftValue": "={{ $('When Executed by Another Workflow').item.json.linkedin_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1680,
+        -128
+      ],
+      "id": "b88e53f9-1fef-46d1-a3a7-4d40928c3f7f",
+      "name": "LinkedIn URL Available?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "5496c0d8-ea13-4e86-a19d-fd5dd89fdc2a",
+              "leftValue": "={{ $json.health_state }}",
+              "rightValue": "green",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1120,
+        -64
+      ],
+      "id": "975a1753-7ee1-4d67-b6ba-b51c22012649",
+      "name": "LinkedIn Account Red?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "694eb292-9c71-4df8-ba4a-4b02b5316c8e",
+              "leftValue": "={{ $('When Executed by Another Workflow').item.json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1920,
+        -416
+      ],
+      "id": "8e699485-5e01-4c1e-b110-fab3df076dae",
+      "name": "Email Available?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "92981f2e-c130-4a17-8f01-96a52f90fe03",
+              "leftValue": "={{ $('When Executed by Another Workflow').item.json.linkedin_connected }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1920,
+        16
+      ],
+      "id": "295f0742-25ba-4ff7-a9c8-76a707e24790",
+      "name": "LinkedIn Already Connected?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.current_step + 1 }}",
+                    "rightValue": 1,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    },
+                    "id": "4062b169-2325-40a9-bfbd-0bd9cc6d6b60"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "1"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "840f89c0-af03-4787-9a70-b7c9be45fee6",
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.current_step + 1 }}",
+                    "rightValue": 2,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "2"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "e2fae26d-4f95-4a91-b81e-01105f6e7922",
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.current_step + 1 }}",
+                    "rightValue": 3,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "3"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "df2348f7-85bb-49fc-9a18-3d3e296930fd",
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.current_step + 1 }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "4"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 4
+                },
+                "conditions": [
+                  {
+                    "id": "007b030e-0c8e-4dc4-b660-6ba280a9eb03",
+                    "leftValue": "={{ $('When Executed by Another Workflow').item.json.current_step + 1 }}",
+                    "operator": {
+                      "type": "number",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "5"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.5,
+      "position": [
+        1360,
+        -96
+      ],
+      "id": "808c1864-49bb-4349-bece-bd1834a42c5a",
+      "name": "Route Outreach Step"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e16d1f37-7439-4938-99bb-922d0f92ac17",
+              "leftValue": "={{ $('When Executed by Another Workflow').item.json.linkedin_connected }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1648,
+        112
+      ],
+      "id": "893de109-a69a-4de8-9df2-4dcdb8d37d53",
+      "name": "LinkedIn Already Connected for Message Steps?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ $json.subject }}",
+        "message": "={{ $json.message }}",
+        "options": {
+          "senderName": "={{ $json.sender_name }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2800,
+        -432
+      ],
+      "id": "ca3ba26e-c84b-4186-9e16-860ec517fe5b",
+      "name": "Send a message",
+      "webhookId": "6af4a2e3-8a04-4686-890d-0650bd61b98b",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hbL0ajjtYjwuU8EI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst prospect = $('When Executed by Another Workflow').item.json;\nconst settings = $input.item.json;\nconst linkedinHealth = $('Get LinkedIn Account Health').first().json.health_state;\n\nconst fallbackMetadata = ['yellow', 'red'].includes(linkedinHealth)\n  ? {\n      fallback_reason: 'linkedin_health',\n      linkedin_health: linkedinHealth,\n      original_channel: 'linkedin',\n      actual_channel: 'email'\n    }\n  : {};\n\nconst step = Number(prospect.current_step) + 1;\nconst firstName = prospect.first_name || 'there';\nconst company = prospect.company || 'your company';\n\nconst senderName = settings.sender_name || 'Outreach Team';\nconst businessName = settings.business_name || 'Your Company';\nconst senderEmail = settings.sender_email || 'your-business@email.com';\nconst unsubscribeUrl = settings.unsubscribe_url || 'https://your-domain.com/unsubscribe';\n\nconst scheduling = settings.config.scheduling;\nif (!scheduling) {\n  throw new Error('Scheduling configuration not found');\n}\n\nconst timezone = prospect.timezone || scheduling.default_timezone;\nconst minDays = Number(scheduling.delay_business_days_min);\nconst maxDays = Number(scheduling.delay_business_days_max);\nconst startHour = Number(scheduling.business_start_hour);\n\nif (!timezone || minDays < 1 || maxDays < minDays) {\n  throw new Error('Invalid scheduling configuration');\n}\n\nconst templates = {\n  1: {\n    subject: `Quick introduction for ${company}`,\n    message: `Hi ${firstName},<br><br>\nI wanted to connect and introduce myself. I came across ${company} and thought there might be an opportunity for us to connect.<br><br>\nWould you be open to a brief conversation?`\n  },\n  2: {\n    subject: `Exploring an opportunity with ${company}`,\n    message: `Hi ${firstName},<br><br>\nI wanted to follow up and explore whether our services could be relevant to ${company}.<br><br>\nWould you be available for a short conversation?`\n  },\n  3: {\n    subject: `Following up, ${firstName}`,\n    message: `Hi ${firstName},<br><br>\nI wanted to follow up on my previous email and see if this is something worth discussing.<br><br>\nI'd be happy to share more details.`\n  },\n  4: {\n    subject: `Any thoughts, ${firstName}?`,\n    message: `Hi ${firstName},<br><br>\nJust checking whether you had a chance to consider my previous message.<br><br>\nWould a brief discussion be useful?`\n  },\n  5: {\n    subject: `Closing the loop, ${firstName}`,\n    message: `Hi ${firstName},<br><br>\nI understand this may not be a priority right now. I'll close the loop here, but you're welcome to reach out if things change.`\n  }\n};\n\nconst template = templates[step];\nif (!template) throw new Error(`No email template found for step ${step}`);\n\nfunction getLocalParts(date, zone) {\n  const parts = new Intl.DateTimeFormat('en-US', {\n    timeZone: zone,\n    year: 'numeric',\n    month: 'numeric',\n    day: 'numeric'\n  }).formatToParts(date);\n\n  const result = {};\n  for (const part of parts) {\n    if (part.type !== 'literal') result[part.type] = Number(part.value);\n  }\n  return result;\n}\n\nfunction localTimeToUTC(year, month, day, hour, zone) {\n  const target = Date.UTC(year, month - 1, day, hour);\n  let guess = target;\n\n  for (let i = 0; i < 4; i++) {\n    const local = new Intl.DateTimeFormat('en-US', {\n      timeZone: zone,\n      year: 'numeric',\n      month: 'numeric',\n      day: 'numeric',\n      hour: 'numeric',\n      hourCycle: 'h23'\n    }).formatToParts(new Date(guess));\n\n    const p = {};\n    for (const part of local) {\n      if (part.type !== 'literal') p[part.type] = Number(part.value);\n    }\n\n    const represented = Date.UTC(p.year, p.month - 1, p.day, p.hour);\n    guess += target - represented;\n  }\n\n  return new Date(guess);\n}\n\nfunction calculateNextSend() {\n  const delay = Math.floor(Math.random() * (maxDays - minDays + 1)) + minDays;\n  const now = new Date();\n  const local = getLocalParts(now, timezone);\n\n  const date = new Date(Date.UTC(local.year, local.month - 1, local.day));\n  let added = 0;\n\n  while (added < delay) {\n    date.setUTCDate(date.getUTCDate() + 1);\n    const day = date.getUTCDay();\n\n    if (day !== 0 && day !== 6) added++;\n  }\n\n  while (date.getUTCDay() === 0 || date.getUTCDay() === 6) {\n    date.setUTCDate(date.getUTCDate() + 1);\n  }\n\n  return localTimeToUTC(\n    date.getUTCFullYear(),\n    date.getUTCMonth() + 1,\n    date.getUTCDate(),\n    startHour,\n    timezone\n  ).toISOString();\n}\n\nconst footer = `\n<br><br>\nBest regards,<br>\n${senderName}<br>\n${businessName}<br>\n<a href=\"mailto:${senderEmail}\">${senderEmail}</a>\n<br><br>\n<a href=\"${unsubscribeUrl}\">Unsubscribe</a>\n`;\n\nreturn {\n  json: {\n    email: prospect.email,\n    subject: template.subject,\n    message: template.message + footer,\n    sender_name: senderName,\n    sender_email: senderEmail,\n    business_name: businessName,\n    prospect_id: prospect.id,\n    response: fallbackMetadata,\n    action: 'email_sent',\n    step,\n    next_send_at: step < 5 ? calculateNextSend() : null\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2608,
+        -432
+      ],
+      "id": "84e1917b-4bf7-4551-9e9c-73a556c23b1d",
+      "name": "Prepare Email Content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "77f3ede1-0f46-403b-874a-797dce82b1f9",
+              "name": "sender_name",
+              "value": "Outreach Team",
+              "type": "string"
+            },
+            {
+              "id": "fa7b6c85-4caa-4b76-8726-878311c42c24",
+              "name": "business_name",
+              "value": "Your Company",
+              "type": "string"
+            },
+            {
+              "id": "f220c6e8-b6dd-4f90-8a51-9adefad86c9b",
+              "name": "sender_email",
+              "value": "your-business@email.com",
+              "type": "string"
+            },
+            {
+              "id": "f000856f-cb74-4020-8a2b-4e4725b93cd8",
+              "name": "unsubscribe_url",
+              "value": "https://your-domain.com/unsubscribe",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        2384,
+        -432
+      ],
+      "id": "9814b82d-93eb-4989-88d0-2940b201325e",
+      "name": "Prepare Email Footer",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "prospect_id",
+              "fieldValue": "={{ $('Prepare Email Content').item.json.prospect_id }}"
+            },
+            {
+              "fieldId": "step",
+              "fieldValue": "={{ $('Prepare Email Content').item.json.step }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "email"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $('Prepare Email Content').item.json.message }}"
+            },
+            {
+              "fieldId": "action",
+              "fieldValue": "email_sent"
+            },
+            {
+              "fieldId": "message_id",
+              "fieldValue": "={{ $json.id }}"
+            },
+            {
+              "fieldId": "response",
+              "fieldValue": "={{ $('Prepare Email Content').first().json.response || {} }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        -432
+      ],
+      "id": "677f01be-9785-4a5a-aaea-dcfac15bca82",
+      "name": "Log Email Event",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "current_step",
+              "fieldValue": "={{ $('Prepare Email Content').item.json.step }}"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ $('Prepare Email Content').item.json.next_send_at }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $('Prepare Email Content').item.json.step === 5 ? 'completed' : 'active' }}"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3248,
+        -432
+      ],
+      "id": "96a5ba7a-3437-4e2f-89ed-1da28937f604",
+      "name": "Update Prospect Progress",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_config",
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        -432
+      ],
+      "id": "36ea3262-11dd-4db1-9b37-2584a239c661",
+      "name": "Get Scheduling Config",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "suppression_list",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.email || '__NO_EMAIL__' }}"
+            },
+            {
+              "keyName": "linkedin_url",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.linkedin_url || '__NO_LINKEDIN__' }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        -256
+      ],
+      "id": "7e44eb7e-93d4-435d-85ae-7e8bb4860b8e",
+      "name": "Check Suppression Before Send",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "ef5d997d-111a-4cda-90a7-1c3d8daa77e8",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        208,
+        -256
+      ],
+      "id": "955d8665-190a-445a-8d7b-f5277fcd9328",
+      "name": "Already Suppressed?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "prospect_id",
+              "fieldValue": "={{ $('When Executed by Another Workflow').item.json.id }}"
+            },
+            {
+              "fieldId": "step",
+              "fieldValue": "={{ Number($('When Executed by Another Workflow').item.json.current_step) + 1 }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "linkedin"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "=Message sent"
+            },
+            {
+              "fieldId": "action",
+              "fieldValue": "=linkedin_message"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        1184
+      ],
+      "id": "4e0cb6b6-86ec-45fc-b81f-a47b3f86aa9a",
+      "name": "Log LinkedIn Event",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_config",
+        "limit": 1
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        1184
+      ],
+      "id": "4a4a3e0c-2d12-4bb5-901b-780c1853b1d1",
+      "name": "Get LinkedIn Scheduling Config",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst prospect = $('When Executed by Another Workflow').item.json;\nconst config = $input.item.json.config.scheduling;\n\nconst step = Number(prospect.current_step) + 1;\nconst timezone = prospect.timezone || config.default_timezone;\n\nconst minDays = Number(config.delay_business_days_min);\nconst maxDays = Number(config.delay_business_days_max);\nconst startHour = Number(config.business_start_hour);\n\nif (!timezone || minDays < 1 || maxDays < minDays) {\n  throw new Error('Invalid scheduling configuration');\n}\n\nfunction localParts(date) {\n  const parts = new Intl.DateTimeFormat('en-US', {\n    timeZone: timezone,\n    year: 'numeric',\n    month: 'numeric',\n    day: 'numeric'\n  }).formatToParts(date);\n\n  const result = {};\n  for (const p of parts) {\n    if (p.type !== 'literal') result[p.type] = Number(p.value);\n  }\n  return result;\n}\n\nfunction localToUTC(year, month, day, hour) {\n  const target = Date.UTC(year, month - 1, day, hour);\n  let guess = target;\n\n  for (let i = 0; i < 4; i++) {\n    const parts = new Intl.DateTimeFormat('en-US', {\n      timeZone: timezone,\n      year: 'numeric',\n      month: 'numeric',\n      day: 'numeric',\n      hour: 'numeric',\n      hourCycle: 'h23'\n    }).formatToParts(new Date(guess));\n\n    const p = {};\n    for (const part of parts) {\n      if (part.type !== 'literal') p[part.type] = Number(part.value);\n    }\n\n    guess += target - Date.UTC(p.year, p.month - 1, p.day, p.hour);\n  }\n\n  return new Date(guess);\n}\n\nfunction nextSendAt() {\n  const delay = Math.floor(Math.random() * (maxDays - minDays + 1)) + minDays;\n  const now = localParts(new Date());\n  const date = new Date(Date.UTC(now.year, now.month - 1, now.day));\n\n  let added = 0;\n  while (added < delay) {\n    date.setUTCDate(date.getUTCDate() + 1);\n    if (date.getUTCDay() !== 0 && date.getUTCDay() !== 6) added++;\n  }\n\n  return localToUTC(\n    date.getUTCFullYear(),\n    date.getUTCMonth() + 1,\n    date.getUTCDate(),\n    startHour\n  ).toISOString();\n}\n\nreturn {\n  json: {\n    prospect_id: prospect.id,\n    step,\n    next_send_at: step < 5 ? nextSendAt() : null,\n    status: step === 5 ? 'completed' : 'active'\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3056,
+        1184
+      ],
+      "id": "a22d1243-9746-4704-9353-3f84735f0fde",
+      "name": "Prepare LinkedIn Progress",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.prospect_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "current_step",
+              "fieldValue": "={{ $json.step }}"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ $json.next_send_at }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3200,
+        1184
+      ],
+      "id": "efe636ae-6ec8-4cb1-8ccd-9ddf1581905b",
+      "name": "Update LinkedIn Prospect Progress",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "prospect_id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.id }}"
+            },
+            {
+              "keyName": "step",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.current_step + 1 }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -80
+      ],
+      "id": "f052512b-64e4-43f0-b8fb-ca99c94ebaff",
+      "name": "Check Existing Successful Send",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b8dc1df0-f234-4197-8597-1a39c61e07cf",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        656,
+        -80
+      ],
+      "id": "6eb5baa7-6927-469b-bb87-fe2f5e4f0876",
+      "name": "If",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').first().json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        432,
+        -320
+      ],
+      "id": "070bad25-fe11-4239-a8e8-cfc612405ff5",
+      "name": "Update Prospect Progress1",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').first().json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            },
+            {
+              "fieldId": "current_step",
+              "fieldValue": "={{ $('When Executed by Another Workflow').first().json.current_step + 1 }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $('When Executed by Another Workflow').first().json.current_step + 1 >= 5 ? 'completed' : 'active' }}"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ $('When Executed by Another Workflow').first().json.current_step + 1 >= 5 ? null : $now.plus({ days: 1 }).toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        896,
+        -320
+      ],
+      "id": "8955d13e-c313-4914-99ba-fde828134156",
+      "name": "Advance Already Sent Prospect",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').first().json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        -656
+      ],
+      "id": "14b6a9f8-8a70-4b71-bbce-f407ef23953b",
+      "name": "Update Prospect Progress2",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://amazing.getsales.io/flows/api/flows-leads/list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"filter\": {\n    \"flow_uuid\": [\"56798720-1c12-44ab-a831-a8792f93dab4\"],\n    \"lead_uuid\": [\"f58a1bd1-e5b1-456b-bc4b-3878ebaa3e92\"]\n  },\n  \"limit\": 20\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2512,
+        1456
+      ],
+      "id": "92a1f882-4f36-412e-a086-49e662059f85",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://amazing.getsales.io/leads/api/leads/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead\": {\n    \"first_name\": \"{{ $('When Executed by Another Workflow').item.json.first_name }}\",\n    \"last_name\": \"{{ $('When Executed by Another Workflow').item.json.last_name }}\",\n    \"company_name\": \"{{ $('When Executed by Another Workflow').item.json.company }}\",\n    \"linkedin_id\": \"{{ $('When Executed by Another Workflow').item.json.linkedin_url }}\",\n    \"work_email\": \"{{ $('When Executed by Another Workflow').item.json.email }}\"\n  },\n  \"list_uuid\": \"5f964031-f9dc-48e7-9ea2-b9463e3d60c6\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2624,
+        512
+      ],
+      "id": "321e31c2-f7ea-4c86-93e2-a4445a3f8919",
+      "name": "GetSales - Create or Find Lead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://amazing.getsales.io/flows/api/flows/56798720-1c12-44ab-a831-a8792f93dab4/leads/' + $('GetSales - Create or Find Lead').item.json.lead.uuid }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3520,
+        592
+      ],
+      "id": "ca4f0dfc-6204-49a4-9230-94ff9a3fd74b",
+      "name": "GetSales - Enroll Lead in Flow"
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $('When Executed by Another Workflow').first().json;\nconst verification = $input.first().json;\n\nreturn [{\n  json: {\n    ...original,\n    getsales_lead_uuid: verification.data?.[0]?.lead_uuid || null,\n    getsales_enrollment_uuid: verification.data?.[0]?.uuid || null,\n    getsales_enrollment_status: verification.data?.[0]?.status || null,\n    enrollment_verification: verification,\n    getsales_action_status: 'pending',\ngetsales_action_started_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3968,
+        496
+      ],
+      "id": "4e667f6e-d433-4447-8544-85bd406ec17f",
+      "name": "Preserve Lead + Enrollment Data"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://amazing.getsales.io/flows/api/flows-leads/list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"flow_uuid\": [\"56798720-1c12-44ab-a831-a8792f93dab4\"],\n    \"lead_uuid\": [\"{{ $('GetSales - Create or Find Lead').item.json.lead.uuid }}\"]\n  },\n  \"limit\": 20\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3744,
+        592
+      ],
+      "id": "ca8e449f-902b-4255-b60b-f51e5113987d",
+      "name": "GetSales - Verify Enrollment"
+    },
+    {
+      "parameters": {
+        "url": "https://amazing.getsales.io/flows/api/tasks",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "20"
+            },
+            {
+              "name": "order_field",
+              "value": "created_at"
+            },
+            {
+              "name": "order_type",
+              "value": "desc"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2848,
+        1408
+      ],
+      "id": "92845e7d-91d0-4b6f-83f5-6c6c14060c2a",
+      "name": "GetSales - Get Recent Tasks"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "getsales_lead_uuid",
+              "fieldValue": "={{ $json.getsales_lead_uuid }}"
+            },
+            {
+              "fieldId": "getsales_enrollment_uuid",
+              "fieldValue": "={{ $json.getsales_enrollment_uuid }}"
+            },
+            {
+              "fieldId": "getsales_enrollment_status",
+              "fieldValue": "={{ $json.getsales_enrollment_status }}"
+            },
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "={{ $json.getsales_action_status }}"
+            },
+            {
+              "fieldId": "getsales_action_started_at",
+              "fieldValue": "={{ $json.getsales_action_started_at }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4192,
+        496
+      ],
+      "id": "74159411-adaf-4fd3-89e3-3242a973374b",
+      "name": "Save GetSales Lead ID",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e1a5aec6-e35a-4b4c-b0a6-5ddf7684e9a0",
+              "leftValue": "={{ $json.data.length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        3296,
+        512
+      ],
+      "id": "d4c57536-a5f6-4832-a280-ba442729cb13",
+      "name": "Already Enrolled?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4d8a6dbd-a8c9-4904-b050-42926ebe9eb1",
+              "leftValue": "={{ ($json.data ?? []).some(task => task.lead_uuid === $('Preserve Lead + Enrollment Data').first().json.getsales_lead_uuid) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        3040,
+        1408
+      ],
+      "id": "a4cee475-8ea9-44ce-9b3f-270d20803166",
+      "name": "Matching Lead Task Found?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "=pending"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{null}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4416,
+        496
+      ],
+      "id": "fa67fd1b-79af-43b2-a8ff-2621f9f29591",
+      "name": "Mark LinkedIn Action Pending",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ 'https://amazing.getsales.io/flows/api/flows/11ae3ed8-e629-470c-942a-624aa61f18bf/leads/' + $('Get Prospect').first().json.getsales_lead_uuid }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3280,
+        48
+      ],
+      "id": "254ffae5-6764-437a-9fda-16718158bc26",
+      "name": "GetSales - Enroll Lead in Flow1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://amazing.getsales.io/leads/api/leads/upsert",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"lead\": {\n    \"first_name\": \"{{ $('When Executed by Another Workflow').item.json.first_name }}\",\n    \"last_name\": \"{{ $('When Executed by Another Workflow').item.json.last_name }}\",\n    \"company_name\": \"{{ $('When Executed by Another Workflow').item.json.company }}\",\n    \"linkedin_id\": \"{{ $('When Executed by Another Workflow').item.json.linkedin_url }}\",\n    \"work_email\": \"{{ $('When Executed by Another Workflow').item.json.email }}\"\n  },\n  \"list_uuid\": \"11ae3ed8-e629-470c-942a-624aa61f18bf\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2400,
+        -16
+      ],
+      "id": "eeff2ad4-2b0b-4579-84f1-c25d20f25a21",
+      "name": "GetSales - Create or Find Lead1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://amazing.getsales.io/flows/api/flows-leads/list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"flow_uuid\": [\"11ae3ed8-e629-470c-942a-624aa61f18bf\"],\n    \"lead_uuid\": [\"{{ $('Get Prospect').first().json.getsales_lead_uuid }}\"]\n  },\n  \"limit\": 20\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3504,
+        48
+      ],
+      "id": "0396d751-1a6d-4a98-8dad-d3c37dc10efc",
+      "name": "GetSales - Verify Enrollment1"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        -16
+      ],
+      "id": "20ee5d9f-a858-470e-9492-f3e846778893",
+      "name": "Get Prospect",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $('When Executed by Another Workflow').item.json.id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2848,
+        512
+      ],
+      "id": "5c0af2e5-e287-4279-8f0c-35f28d23f8fb",
+      "name": "Get Prospect1",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "d10a1629-ae1a-4609-b457-b03f6f9089a1",
+              "leftValue": "={{ $json.getsales_action_status }}",
+              "rightValue": "failed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        2336,
+        352
+      ],
+      "id": "ba54ef2f-132a-4c6f-b801-eae728994ac1",
+      "name": "Check status"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://amazing.getsales.io/flows/api/flows-leads/list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"flow_uuid\": [\"56798720-1c12-44ab-a831-a8792f93dab4\"],\n    \"lead_uuid\": [\"{{ $('GetSales - Create or Find Lead').first().json.lead.uuid }}\"]\n  },\n  \"limit\": 20\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3072,
+        512
+      ],
+      "id": "0c8a2ef5-69bb-4d7f-83b4-9ac00ff33bca",
+      "name": "Get Existing Connection Enrollment"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://amazing.getsales.io/flows/api/flows-leads/list",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GETSALES_API_TOKEN"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"filter\": {\n    \"flow_uuid\": [\"11ae3ed8-e629-470c-942a-624aa61f18bf\"],\n    \"lead_uuid\": [\"{{ $('Get Prospect').first().json.getsales_lead_uuid }}\"]\n  },\n  \"limit\": 20\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2832,
+        -16
+      ],
+      "id": "3c541816-59f9-45f0-b8a7-ed64064c9444",
+      "name": "Get Existing Message Enrollment"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "e1a5aec6-e35a-4b4c-b0a6-5ddf7684e9a0",
+              "leftValue": "={{ $json.data.length > 0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        3056,
+        -16
+      ],
+      "id": "fdafdce2-02d5-48c3-a18a-b4b2e60ffb99",
+      "name": "Message Enrollment Exists?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "getsales_action_status",
+              "fieldValue": "=pending"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{null}}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        4176,
+        -32
+      ],
+      "id": "897d855e-9ab8-48d0-a178-cc4c7fb46ad1",
+      "name": "Mark LinkedIn Action Pending1",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $('When Executed by Another Workflow').first().json;\nconst verification = $input.first().json;\n\nreturn [{\n  json: {\n    ...original,\n    getsales_lead_uuid: verification.data?.[0]?.lead_uuid || original.getsales_lead_uuid,\n    message_enrollment_uuid: verification.data?.[0]?.uuid || null,\n    message_enrollment_status: verification.data?.[0]?.status || null,\n    enrollment_verification: verification,\n    getsales_action_status: 'pending',\n    getsales_action_started_at: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3728,
+        -32
+      ],
+      "id": "1ac99d10-4fb1-4d43-8a55-ce12b0b2f7dd",
+      "name": "Preserve Message Lead + Enrollment Data"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "getsales_lead_uuid",
+              "fieldValue": "={{ $json.getsales_lead_uuid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        3952,
+        -32
+      ],
+      "id": "8e3ea72d-aea5-4c98-a7ca-2c564de6c2da",
+      "name": "Save Message Lead ID",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "id": "95ed81f5-a01f-45a2-862a-45f0b88d35a8",
+          "first_name": "Mannan",
+          "last_name": "Test",
+          "company": "Automation Test Company",
+          "job_title": "Marketing Manager",
+          "linkedin_url": "https://www.linkedin.com/in/your-real-test-profile/",
+          "email": "mannan.test@example.com",
+          "country": "Pakistan",
+          "timezone": "Asia/Karachi",
+          "current_step": 0,
+          "status": "active",
+          "linkedin_connected": false,
+          "processing": true,
+          "getsales_lead_uuid": null,
+          "getsales_enrollment_uuid": null,
+          "getsales_enrollment_status": null,
+          "getsales_action_status": null
+        }
+      }
+    ],
+    "Get LinkedIn Account Health": [
+      {
+        "json": {
+          "id": "f3b97a1c-2b96-4ad2-bb3d-62c7b6d0f94a",
+          "account_name": "Test LinkedIn Account",
+          "health_state": "green",
+          "sent_today": 4,
+          "sent_this_week": 20,
+          "pending_invites": 10,
+          "acceptance_rate": 35,
+          "restriction_detected": false,
+          "updated_at": "2026-11-18T12:57:58.026+00:00"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Check Suppression Before Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn Account Health": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Account Red?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Account Red?": {
+      "main": [
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route Outreach Step",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn URL Available?": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Already Connected?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Outreach Step": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn URL Available?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LinkedIn Already Connected for Message Steps?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LinkedIn Already Connected for Message Steps?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Already Connected for Message Steps?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Available?": {
+      "main": [
+        [
+          {
+            "node": "Get Scheduling Config",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Prospect Progress2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Content": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Email Footer": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Log Email Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Email Event": {
+      "main": [
+        [
+          {
+            "node": "Update Prospect Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Scheduling Config": {
+      "main": [
+        [
+          {
+            "node": "Prepare Email Footer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Suppression Before Send": {
+      "main": [
+        [
+          {
+            "node": "Already Suppressed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Suppressed?": {
+      "main": [
+        [
+          {
+            "node": "Update Prospect Progress1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Existing Successful Send",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get LinkedIn Account Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Already Connected?": {
+      "main": [
+        [
+          {
+            "node": "GetSales - Create or Find Lead1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log LinkedIn Event": {
+      "main": [
+        [
+          {
+            "node": "Get LinkedIn Scheduling Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get LinkedIn Scheduling Config": {
+      "main": [
+        [
+          {
+            "node": "Prepare LinkedIn Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare LinkedIn Progress": {
+      "main": [
+        [
+          {
+            "node": "Update LinkedIn Prospect Progress",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Successful Send": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Advance Already Sent Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get LinkedIn Account Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Prospect Progress2": {
+      "main": [
+        []
+      ]
+    },
+    "GetSales - Create or Find Lead": {
+      "main": [
+        [
+          {
+            "node": "Get Prospect1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetSales - Enroll Lead in Flow": {
+      "main": [
+        [
+          {
+            "node": "GetSales - Verify Enrollment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetSales - Verify Enrollment": {
+      "main": [
+        [
+          {
+            "node": "Preserve Lead + Enrollment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preserve Lead + Enrollment Data": {
+      "main": [
+        [
+          {
+            "node": "Save GetSales Lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save GetSales Lead ID": {
+      "main": [
+        [
+          {
+            "node": "Mark LinkedIn Action Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Already Enrolled?": {
+      "main": [
+        [
+          {
+            "node": "Preserve Lead + Enrollment Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetSales - Enroll Lead in Flow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetSales - Get Recent Tasks": {
+      "main": [
+        [
+          {
+            "node": "Matching Lead Task Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetSales - Enroll Lead in Flow1": {
+      "main": [
+        [
+          {
+            "node": "GetSales - Verify Enrollment1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetSales - Create or Find Lead1": {
+      "main": [
+        [
+          {
+            "node": "Get Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Prospect": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Message Enrollment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Prospect1": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Connection Enrollment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GetSales - Verify Enrollment1": {
+      "main": [
+        [
+          {
+            "node": "Preserve Message Lead + Enrollment Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check status": {
+      "main": [
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetSales - Create or Find Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Connection Enrollment": {
+      "main": [
+        [
+          {
+            "node": "Already Enrolled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Message Enrollment": {
+      "main": [
+        [
+          {
+            "node": "Message Enrollment Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Enrollment Exists?": {
+      "main": [
+        [
+          {
+            "node": "Preserve Message Lead + Enrollment Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GetSales - Enroll Lead in Flow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preserve Message Lead + Enrollment Data": {
+      "main": [
+        [
+          {
+            "node": "Save Message Lead ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Message Lead ID": {
+      "main": [
+        [
+          {
+            "node": "Mark LinkedIn Action Pending1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "660725ac-13b2-4103-8146-1b04e8a0df57",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [
+    {
+      "id": "cfb02ed9-12f9-40c4-a132-bd057da06316",
+      "nodeIds": [
+        "321e31c2-f7ea-4c86-93e2-a4445a3f8919",
+        "ca4f0dfc-6204-49a4-9230-94ff9a3fd74b",
+        "4e667f6e-d433-4447-8544-85bd406ec17f",
+        "ca8e449f-902b-4255-b60b-f51e5113987d",
+        "74159411-adaf-4fd3-89e3-3242a973374b",
+        "d4c57536-a5f6-4832-a280-ba442729cb13",
+        "fa67fd1b-79af-43b2-a8ff-2621f9f29591",
+        "5c0af2e5-e287-4279-8f0c-35f28d23f8fb",
+        "0c8a2ef5-69bb-4d7f-83b4-9ac00ff33bca"
+      ],
+      "name": "Connection request"
+    },
+    {
+      "id": "840bfcc1-8722-4e12-a37c-27d190b6317d",
+      "nodeIds": [
+        "254ffae5-6764-437a-9fda-16718158bc26",
+        "eeff2ad4-2b0b-4579-84f1-c25d20f25a21",
+        "0396d751-1a6d-4a98-8dad-d3c37dc10efc",
+        "20ee5d9f-a858-470e-9492-f3e846778893",
+        "3c541816-59f9-45f0-b8a7-ed64064c9444",
+        "fdafdce2-02d5-48c3-a18a-b4b2e60ffb99",
+        "8e3ea72d-aea5-4c98-a7ca-2c564de6c2da",
+        "897d855e-9ab8-48d0-a178-cc4c7fb46ad1",
+        "1ac99d10-4fb1-4d43-8a55-ce12b0b2f7dd"
+      ],
+      "name": "Message sending"
+    }
+  ],
+  "id": "1TlecjdgfEqqsqQC",
+  "tags": []
+}

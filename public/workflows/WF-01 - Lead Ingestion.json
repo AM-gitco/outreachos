@@ -1,0 +1,698 @@
+{
+  "name": "WF-01 - Lead Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "outreach-leads",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -288,
+        -96
+      ],
+      "id": "e701e4ef-62b1-435d-9d6d-595b40a09ded",
+      "name": "Webhook",
+      "webhookId": "230b9d77-3dc4-4bdc-af71-c1e17d21395b"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "ef17ff78-f970-4360-b125-50b98be41dbd",
+              "leftValue": "={{ $json.body.first_name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "924b725d-c18e-426c-9d1c-ea0f3a0a30d0",
+              "leftValue": "={{ $json.body.last_name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7e8aabf6-7ad2-4c9b-82b0-7867a600dc3a",
+              "leftValue": "={{ $json.body.company }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        -64,
+        -96
+      ],
+      "id": "01f9fdb7-889b-472a-ba72-14bdd7172497",
+      "name": "Validate Prospect"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "c0d87d77-c97a-4a6f-a854-b84e2e950bbc",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        832,
+        -176
+      ],
+      "id": "d1f31e3e-55b6-4941-a5a0-5c31c036765e",
+      "name": "Prospect Already Exists?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -176
+      ],
+      "id": "e6c90f46-3847-45bd-addb-517f0fefcf21",
+      "name": "Check Existing Prospect",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst lead = $('Webhook').item.json.body;\n\nreturn {\n  json: {\n    first_name: lead.first_name,\n    last_name: lead.last_name,\n    company: lead.company,\n    job_title: lead.job_title,\n    linkedin_url: lead.linkedin_url || null,\n    email: lead.email || null,\n    personalization: lead.personalization || {},\n    country: lead.country || null,\n    timezone: lead.timezone || null,\n    status: 'active',\n    current_step: 0,\n    next_send_at: new Date().toISOString(),\n    linkedin_connected: false\n  }\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2176,
+        -64
+      ],
+      "id": "4a2c2d84-22a9-48dd-a388-1f3d52dfaaa9",
+      "name": "Prepare Prospect Data"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "linkedin_url",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.linkedin_url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1296,
+        -208
+      ],
+      "id": "cbf56d43-5714-4320-aaa1-c07aa681f2a9",
+      "name": "Check Existing LinkedIn",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4b506539-36e5-46e7-bf4a-ee38a7d99d81",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1520,
+        -208
+      ],
+      "id": "3000e931-dd96-43a5-ad0d-e225cf0b780f",
+      "name": "LinkedIn Already Exists?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ $json.first_name }}"
+            },
+            {
+              "fieldId": "last_name",
+              "fieldValue": "={{ $json.last_name }}"
+            },
+            {
+              "fieldId": "company",
+              "fieldValue": "={{ $json.company }}"
+            },
+            {
+              "fieldId": "job_title",
+              "fieldValue": "={{ $json.job_title }}"
+            },
+            {
+              "fieldId": "linkedin_url",
+              "fieldValue": "={{ $json.linkedin_url }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.email }}"
+            },
+            {
+              "fieldId": "personalization",
+              "fieldValue": "={{ $json.personalization }}"
+            },
+            {
+              "fieldId": "current_step",
+              "fieldValue": "={{ $json.current_step }}"
+            },
+            {
+              "fieldId": "status",
+              "fieldValue": "={{ $json.status }}"
+            },
+            {
+              "fieldId": "country",
+              "fieldValue": "={{ $json.country }}"
+            },
+            {
+              "fieldId": "timezone",
+              "fieldValue": "={{ $json.timezone }}"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ $json.next_send_at }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        -64
+      ],
+      "id": "648bf17f-39aa-42c9-a84f-48ac23930566",
+      "name": "Save New Prospect",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "16068005-bd98-4638-9618-3db5c74bb800",
+              "leftValue": "={{ $('Webhook').item.json.body.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "015babaa-066e-4c21-9d6b-57d171374093",
+              "leftValue": "={{ $('Webhook').item.json.body.linkedin_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        160,
+        -96
+      ],
+      "id": "9828a8bd-1a4c-4ef6-b502-eeb625db321f",
+      "name": "At Least One Contact Method?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "70ca3091-e334-495d-a800-1854a521b7b1",
+              "leftValue": "={{ $json.body.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        384,
+        -96
+      ],
+      "id": "e20af796-455b-4254-a71f-6c9b2d0e4a84",
+      "name": "Email Available?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "92b1ea39-4537-4503-b1cc-245e4a347418",
+              "leftValue": "={{ $('Webhook').item.json.body.linkedin_url }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1056,
+        -80
+      ],
+      "id": "d7d66421-d4db-44ae-8d92-b508191b1596",
+      "name": "LinkedIn URL Available?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "suppression_list",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.email }}"
+            },
+            {
+              "keyName": "linkedin_url",
+              "condition": "eq",
+              "keyValue": "={{ $('Webhook').item.json.body.linkedin_url }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        -64
+      ],
+      "id": "a6f0ec85-29c5-41be-8d03-4c844ab0d2d8",
+      "name": "Check Suppression List",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "14b70f2b-4fdb-4523-aef2-2456ffb6b6a9",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        1952,
+        -64
+      ],
+      "id": "dad075f3-7d1e-4e44-8690-2c2516299762",
+      "name": "If"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "mannam.app.n8n.cloud",
+            "user-agent": "Clay/1.0",
+            "content-length": "232",
+            "accept-encoding": "gzip, br",
+            "cdn-loop": "cloudflare; loops=1; subreqs=1",
+            "cf-connecting-ip": "32.198.57.195",
+            "cf-ew-via": "15",
+            "cf-ipcountry": "US",
+            "cf-ray": "a5e03211f8f9841f-IAD",
+            "cf-visitor": "{\"scheme\":\"https\"}",
+            "cf-worker": "n8n.cloud",
+            "content-type": "application/json",
+            "x-forwarded-for": "32.198.57.195, 104.22.100.51",
+            "x-forwarded-host": "mannam.app.n8n.cloud",
+            "x-forwarded-port": "443",
+            "x-forwarded-proto": "https",
+            "x-forwarded-server": "traefik-prod-users-gwc-59-678f9f8554-4m87n",
+            "x-is-trusted": "yes",
+            "x-real-ip": "32.198.57.195"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "first_name": "Tony",
+            "last_name": "Robbins",
+            "company": "Robbins Research International",
+            "job_title": "Chairman",
+            "email": "tony@tonyrobbins.com",
+            "linkedin_url": "https://www.linkedin.com/in/officialtonyrobbins/",
+            "country": "United States"
+          },
+          "webhookUrl": "https://mannam.app.n8n.cloud/webhook-test/outreach-leads",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Prospect": {
+      "main": [
+        [
+          {
+            "node": "At Least One Contact Method?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Prospect": {
+      "main": [
+        [
+          {
+            "node": "Prospect Already Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Already Exists?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "LinkedIn URL Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prospect Data": {
+      "main": [
+        [
+          {
+            "node": "Save New Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Already Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Already Exists?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Check Suppression List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "At Least One Contact Method?": {
+      "main": [
+        [
+          {
+            "node": "Email Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Available?": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "LinkedIn URL Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn URL Available?": {
+      "main": [
+        [
+          {
+            "node": "Check Existing LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Suppression List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Suppression List": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Prepare Prospect Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "d8b74df5-1220-4123-8de4-0503774c17bf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "rNiyLwzPkJ7KOGqY",
+  "tags": []
+}

@@ -1,0 +1,151 @@
+{
+  "name": "WF-02 — Outreach Scheduler",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        -160
+      ],
+      "id": "8af6b2c3-88e6-4d76-bda6-8cd7269d049a",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "1TlecjdgfEqqsqQC",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/1TlecjdgfEqqsqQC",
+          "cachedResultName": "WF-04 - Outreach Sender"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        -160
+      ],
+      "id": "234caeb5-23dc-4062-a8c6-d2cc7ce19a85",
+      "name": "Run Outreach Sender"
+    },
+    {
+      "parameters": {
+        "jsCode": "const prospect = $input.item.json;\n\n// Simulate Monday at 10 AM\nconst testDay = 'Mon';\nconst testHour = 10;\n\nconst allowed =\n  !['Sat', 'Sun'].includes(testDay) &&\n  testHour >= 9 &&\n  testHour < 17;\n\nreturn allowed ? { json: prospect } : [];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        0,
+        64
+      ],
+      "id": "01cccd08-8801-457c-81c5-6c6c16f5d414",
+      "name": "Within Business Hours?",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://wwimtwtynhssvpasbdjg.supabase.co/rest/v1/rpc/claim_due_prospects",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_SUPABASE_SERVICE_ROLE_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"p_limit\": 50\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        224,
+        -160
+      ],
+      "id": "b20ac68f-ecfd-4e7b-b7cb-80651bfe338a",
+      "name": "Claim Due Prospects"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Claim Due Prospects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Within Business Hours?": {
+      "main": [
+        []
+      ]
+    },
+    "Claim Due Prospects": {
+      "main": [
+        [
+          {
+            "node": "Run Outreach Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "de9a0b71-4ded-49c1-aea2-518cf783542d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "bgG2Z2dOMiHYvHEC",
+  "tags": []
+}

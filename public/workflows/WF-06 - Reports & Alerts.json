@@ -1,0 +1,145 @@
+{
+  "name": "WF-06 - Reports & Alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1c7dd53c-cb91-4690-9064-3dee89608d02",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "returnAll": true,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "sent_at",
+              "condition": "gte",
+              "keyValue": "={{ $now.minus({ days: 1 }).toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7571a3b1-d12d-4fb8-9445-49e99518021b",
+      "name": "Get Outreach Events",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const events = $('Get Outreach Events')\n  .all()\n  .map(item => item.json)\n  .filter(event => event.id);\n\nconst count = action =>\n  events.filter(event => event.action === action).length;\n\nconst emailSent = events.filter(\n  event => event.channel === 'email' && event.action === 'email_sent'\n).length;\n\nconst linkedinActions = events.filter(\n  event => event.channel === 'linkedin'\n).length;\n\nconst replies = count('reply_received');\n\nconst report = [\n  '📊 DAILY OUTREACH REPORT',\n  '',\n  `Total Events: ${events.length}`,\n  `Emails Sent: ${emailSent}`,\n  `LinkedIn Actions: ${linkedinActions}`,\n  `Replies Received: ${replies}`,\n  '',\n  `Report Date: ${new Date().toISOString().slice(0, 10)}`\n].join('\\n');\n\nreturn [{ json: { report } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "5395ad25-754a-4faa-915b-30bec5c790d0",
+      "name": "Prepare Daily Report"
+    },
+    {
+      "parameters": {
+        "chatId": "-1003811814921",
+        "text": "={{ $json.report }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        672,
+        0
+      ],
+      "id": "0a021a89-300b-4b16-a7c0-38f7ac21131d",
+      "name": "Send Daily Report",
+      "webhookId": "c2cb06a8-74d9-4306-a21b-746df89a5df5",
+      "credentials": {
+        "telegramApi": {
+          "id": "8NYHi7lgI6qzk4IP",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Outreach Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Outreach Events": {
+      "main": [
+        [
+          {
+            "node": "Prepare Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Send Daily Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "570bff71-75c7-4d44-9ce7-e7f3363b50c3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "OJOISDCvxQOC9PtJ",
+  "tags": []
+}

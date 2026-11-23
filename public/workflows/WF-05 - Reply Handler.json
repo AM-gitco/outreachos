@@ -1,0 +1,571 @@
+{
+  "name": "WF-05 - Reply Handler",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "outreach-reply",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -64,
+        -336
+      ],
+      "id": "a14e7bd8-9f55-463b-a350-80065f6f18e9",
+      "name": "Webhook",
+      "webhookId": "49b9a3aa-9e22-4ace-9157-45d66392dcb2"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -560
+      ],
+      "id": "7b82ca43-1af8-4745-a49e-3efd6e2a4952",
+      "name": "Find Reply Prospect",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4c6c0d0f-b87b-4cbd-add4-be98edab517f",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        832,
+        -560
+      ],
+      "id": "8634346c-cd6c-4c82-81b8-f70ea8b9be64",
+      "name": "Prospect Found?"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "replied"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ null }}"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -560
+      ],
+      "id": "5f6bc4ee-816e-42a4-9ebe-e384ac2faa02",
+      "name": "Stop Prospect Sequence",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "prospect_id",
+              "fieldValue": "={{ $('Find Reply Prospect').item.json.id }}"
+            },
+            {
+              "fieldId": "step",
+              "fieldValue": "={{ $('Find Reply Prospect').item.json.current_step }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "={{ $('Clean & Prepare Email Reply').item.json.source }}"
+            },
+            {
+              "fieldId": "action",
+              "fieldValue": "reply_received"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $('Clean & Prepare Email Reply').item.json.message }}"
+            },
+            {
+              "fieldId": "message_id",
+              "fieldValue": "={{ $('Clean & Prepare Email Reply').item.json.message_id }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        -560
+      ],
+      "id": "3083b901-3258-4010-a2e0-3f649a00ea22",
+      "name": "Log Reply Event",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -64,
+        -560
+      ],
+      "id": "31d765d4-4f98-41aa-9902-7d63201c1bd2",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hbL0ajjtYjwuU8EI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "messageId": "={{ $json.id }}",
+        "simple": false,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        -560
+      ],
+      "id": "94e66749-e2c9-4be1-941d-d27cfac08365",
+      "name": "Get Message",
+      "webhookId": "9b74f600-98b3-4078-8aed-874443c15e3a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "hbL0ajjtYjwuU8EI",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const email = $json;\n\nconst sender = email.from?.value?.[0]?.address\n  ?.trim()\n  .toLowerCase();\n\nconst rawMessage = email.text || '';\n\nconst message = rawMessage\n  .split(/\\nOn .+wrote:\\s*\\n/i)[0]\n  .replace(/^>.*$/gm, '')\n  .trim();\n\nconst subject = email.subject || '';\nconst messageId = email.messageId || email.id;\n\nif (!sender) {\n  throw new Error('Sender email is missing');\n}\n\nif (!message) {\n  throw new Error('Email reply body is empty');\n}\n\nreturn {\n  json: {\n    email: sender,\n    message,\n    message_id: messageId,\n    thread_id: email.threadId || null,\n    subject,\n    received_at: email.date || null,\n    source: 'gmail',\n    is_reply: Boolean(email.inReplyTo)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        384,
+        -560
+      ],
+      "id": "3e063c3d-45a1-4359-8361-a0c7686923a2",
+      "name": "Clean & Prepare Email Reply"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = $json.body;\n\nif (data.event_name !== 'contact_replied_linkedin_message') {\n  throw new Error('Not a LinkedIn reply event');\n}\n\nconst contact = data.contact || {};\nconst linkedinMessage = data.linkedin_message || {};\n\nreturn {\n  json: {\n    source: 'linkedin',\n    event: data.event_name,\n    getsales_lead_uuid: contact.uuid,\n    linkedin_url: contact.linkedin || contact.linkedin_url || null,\n    first_name: contact.first_name || null,\n    last_name: contact.last_name || null,\n    message: linkedinMessage.text || '',\n    message_type: linkedinMessage.type || null,\n    message_status: linkedinMessage.status || null,\n    conversation: data.latest_linkedin_conversation_thread?.messaging_thread || '',\n    received_at: contact.last_messaging_activity_at || null\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        160,
+        -336
+      ],
+      "id": "1b1d4ed4-0d01-4325-ba75-b31f0ab6bfa3",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "getAll",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "getsales_lead_uuid",
+              "condition": "eq",
+              "keyValue": "={{ $json.getsales_lead_uuid }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        384,
+        -336
+      ],
+      "id": "6d340051-9af6-484e-9961-7e07fe10f8bb",
+      "name": "Find Reply Prospect1",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "4c6c0d0f-b87b-4cbd-add4-be98edab517f",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        608,
+        -336
+      ],
+      "id": "90bfcd12-bfd2-4f43-be0f-e89ff1e08662",
+      "name": "Prospect Found?1"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "update",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "prospects",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "replied"
+            },
+            {
+              "fieldId": "next_send_at",
+              "fieldValue": "={{ null }}"
+            },
+            {
+              "fieldId": "processing",
+              "fieldValue": "false"
+            },
+            {
+              "fieldId": "processing_started_at",
+              "fieldValue": "={{ null }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        832,
+        -336
+      ],
+      "id": "f2f065ee-2881-42ac-b432-ed5538199922",
+      "name": "Update LinkedIn Reply Status",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "projectRef": "wwimtwtynhssvpasbdjg",
+        "tableId": "outreach_events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "prospect_id",
+              "fieldValue": "={{ $('Update LinkedIn Reply Status').item.json.id }}"
+            },
+            {
+              "fieldId": "step",
+              "fieldValue": "={{ $('Update LinkedIn Reply Status').item.json.current_step }}"
+            },
+            {
+              "fieldId": "channel",
+              "fieldValue": "=linkedIn"
+            },
+            {
+              "fieldId": "action",
+              "fieldValue": "linkedin_reply"
+            },
+            {
+              "fieldId": "message",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.message }}"
+            },
+            {
+              "fieldId": "sent_at",
+              "fieldValue": "={{ $('Code in JavaScript').item.json.received_at || $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1056,
+        -336
+      ],
+      "id": "9d47e3a7-f34e-4ed2-9de2-1b38a39eb2f6",
+      "name": "Log LinkedIn Reply Event",
+      "credentials": {
+        "supabaseOAuth2Api": {
+          "id": "WfDeisyjmiEZ0037",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Reply Prospect": {
+      "main": [
+        [
+          {
+            "node": "Prospect Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Found?": {
+      "main": [
+        [
+          {
+            "node": "Stop Prospect Sequence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop Prospect Sequence": {
+      "main": [
+        [
+          {
+            "node": "Log Reply Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Message": {
+      "main": [
+        [
+          {
+            "node": "Clean & Prepare Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean & Prepare Email Reply": {
+      "main": [
+        [
+          {
+            "node": "Find Reply Prospect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Find Reply Prospect1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prospect Found?1": {
+      "main": [
+        [
+          {
+            "node": "Update LinkedIn Reply Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Reply Prospect1": {
+      "main": [
+        [
+          {
+            "node": "Prospect Found?1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update LinkedIn Reply Status": {
+      "main": [
+        [
+          {
+            "node": "Log LinkedIn Reply Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "errorWorkflow": "HYOqwn4rscn2EqOT",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "a818ad50-35ec-48e7-b599-0768572f986f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3e3e732aa16e576d1252ec13ce23fa018e15169d29d4fa8733541947ec8fd0af"
+  },
+  "nodeGroups": [],
+  "id": "kDfA9Rt6kG0hvwwn",
+  "tags": []
+}
