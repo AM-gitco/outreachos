@@ -74,7 +74,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Validate Prospect",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Validate Prospect",
         "description": "Validate Prospect",
         "position": [
@@ -131,7 +131,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Prospect Already Exists?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Prospect Already Exists?",
         "description": "Prospect Already Exists?",
         "position": [
@@ -246,7 +246,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn Already Exists?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn Already Exists?",
         "description": "LinkedIn Already Exists?",
         "position": [
@@ -354,7 +354,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "At Least One Contact Method?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "At Least One Contact Method?",
         "description": "At Least One Contact Method?",
         "position": [
@@ -401,7 +401,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Email Available?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Email Available?",
         "description": "Email Available?",
         "position": [
@@ -438,7 +438,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn URL Available?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn URL Available?",
         "description": "LinkedIn URL Available?",
         "position": [
@@ -509,7 +509,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "If",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "If",
         "description": "If",
         "position": [
@@ -809,7 +809,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn Health Red?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn Health Red?",
         "description": "LinkedIn Health Red?",
         "position": [
@@ -879,7 +879,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Get GetSales LinkedIn Accounts",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "Get GetSales LinkedIn Accounts",
         "description": "Get GetSales LinkedIn Accounts",
         "position": [
@@ -943,7 +943,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Account Already Exists?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Account Already Exists?",
         "description": "Account Already Exists?",
         "position": [
@@ -1227,7 +1227,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn URL Available?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn URL Available?",
         "description": "LinkedIn URL Available?",
         "position": [
@@ -1264,7 +1264,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn Account Red?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn Account Red?",
         "description": "LinkedIn Account Red?",
         "position": [
@@ -1300,7 +1300,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Email Available?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Email Available?",
         "description": "Email Available?",
         "position": [
@@ -1337,7 +1337,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn Already Connected?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn Already Connected?",
         "description": "LinkedIn Already Connected?",
         "position": [
@@ -1374,7 +1374,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Route Outreach Step",
         "type": "n8n-nodes-base.switch",
         "category": "logic",
-        "service": "switch",
+        "service": "Logic Router",
         "operation": "Route Outreach Step",
         "description": "Route Outreach Step",
         "position": [
@@ -1513,7 +1513,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "LinkedIn Already Connected for Message Steps?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "LinkedIn Already Connected for Message Steps?",
         "description": "LinkedIn Already Connected for Message Steps?",
         "position": [
@@ -1550,7 +1550,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Send a message",
         "type": "n8n-nodes-base.gmail",
         "category": "logic",
-        "service": "gmail",
+        "service": "Email",
         "operation": "Send a message",
         "description": "Send a message",
         "position": [
@@ -1789,7 +1789,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Already Suppressed?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Already Suppressed?",
         "description": "Already Suppressed?",
         "position": [
@@ -1992,7 +1992,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "If",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "If",
         "description": "If",
         "position": [
@@ -2161,7 +2161,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "HTTP Request",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "HTTP Request",
         "description": "HTTP Request",
         "position": [
@@ -2191,7 +2191,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Create or Find Lead",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Create or Find Lead",
         "description": "GetSales - Create or Find Lead",
         "position": [
@@ -2225,7 +2225,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Enroll Lead in Flow",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Enroll Lead in Flow",
         "description": "GetSales - Enroll Lead in Flow",
         "position": [
@@ -2268,7 +2268,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Verify Enrollment",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Verify Enrollment",
         "description": "GetSales - Verify Enrollment",
         "position": [
@@ -2302,7 +2302,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Get Recent Tasks",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Get Recent Tasks",
         "description": "GetSales - Get Recent Tasks",
         "position": [
@@ -2401,7 +2401,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Already Enrolled?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Already Enrolled?",
         "description": "Already Enrolled?",
         "position": [
@@ -2438,7 +2438,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Matching Lead Task Found?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Matching Lead Task Found?",
         "description": "Matching Lead Task Found?",
         "position": [
@@ -2519,7 +2519,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Enroll Lead in Flow1",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Enroll Lead in Flow1",
         "description": "GetSales - Enroll Lead in Flow1",
         "position": [
@@ -2546,7 +2546,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Create or Find Lead1",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Create or Find Lead1",
         "description": "GetSales - Create or Find Lead1",
         "position": [
@@ -2580,7 +2580,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Verify Enrollment1",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Verify Enrollment1",
         "description": "GetSales - Verify Enrollment1",
         "position": [
@@ -2672,7 +2672,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Check status",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Check status",
         "description": "Check status",
         "position": [
@@ -2709,7 +2709,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Get Existing Connection Enrollment",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "Get Existing Connection Enrollment",
         "description": "Get Existing Connection Enrollment",
         "position": [
@@ -2743,7 +2743,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Get Existing Message Enrollment",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "Get Existing Message Enrollment",
         "description": "Get Existing Message Enrollment",
         "position": [
@@ -2777,7 +2777,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Message Enrollment Exists?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Message Enrollment Exists?",
         "description": "Message Enrollment Exists?",
         "position": [
@@ -3233,7 +3233,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Prospect Found?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Prospect Found?",
         "description": "Prospect Found?",
         "position": [
@@ -3364,7 +3364,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Gmail Trigger",
         "type": "n8n-nodes-base.gmailTrigger",
         "category": "trigger",
-        "service": "gmailTrigger",
+        "service": "Email",
         "operation": "Gmail Trigger",
         "description": "Gmail Trigger",
         "position": [
@@ -3387,7 +3387,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Get Message",
         "type": "n8n-nodes-base.gmail",
         "category": "logic",
-        "service": "gmail",
+        "service": "Email",
         "operation": "get",
         "description": "Get Message",
         "position": [
@@ -3469,7 +3469,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Prospect Found?1",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Prospect Found?1",
         "description": "Prospect Found?1",
         "position": [
@@ -3764,9 +3764,9 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
   {
     "id": "WF-07",
     "code": "WF-07",
-    "name": "Outreach Error Recovery & Incident Logger",
+    "name": "Error Recovery",
     "category": "Resilience",
-    "description": "Catches unexpected n8n execution failures, writes error telemetry to automation_errors table, and broadcasts emergency alerts to Telegram.",
+    "description": "Error Trigger → Format Error Details → Save Automation Error to Supabase → Send Telegram Alert.",
     "nodeCount": 4,
     "connectionCount": 3,
     "nodes": [
@@ -3892,9 +3892,9 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
   {
     "id": "WF-08",
     "code": "WF-08",
-    "name": "GetSales Task Monitor & Bi-Directional Sync",
+    "name": "GetSales Callback Handler + Task Monitor",
     "category": "Sync Engine",
-    "description": "Polls GetSales.io task statuses, monitors connection acceptances and message delivery confirmations, and synchronizes state with Supabase.",
+    "description": "Flow A (Task Monitor): Schedule Trigger → Get Recent GetSales Tasks → Extract Tasks → Find Prospect → Check Task Status → Update Action Status. Flow B (LinkedIn Callback): Webhook → Find Prospect → Check Connection/Message Result → Log Successful Message or Update Connection Status → Update Prospect Progress.",
     "nodeCount": 21,
     "connectionCount": 18,
     "nodes": [
@@ -3925,7 +3925,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "GetSales - Get Recent Tasks",
         "type": "n8n-nodes-base.httpRequest",
         "category": "channel",
-        "service": "HTTP Request",
+        "service": "GetSales API",
         "operation": "GetSales - Get Recent Tasks",
         "description": "GetSales - Get Recent Tasks",
         "position": [
@@ -3972,7 +3972,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Matching Lead Task Found?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Matching Lead Task Found?",
         "description": "Matching Lead Task Found?",
         "position": [
@@ -4054,7 +4054,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Is Prospect Found?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Is Prospect Found?",
         "description": "Is Prospect Found?",
         "position": [
@@ -4091,7 +4091,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Is GetSales Task Done?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Is GetSales Task Done?",
         "description": "Is GetSales Task Done?",
         "position": [
@@ -4128,7 +4128,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Is GetSales Task Failed?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Is GetSales Task Failed?",
         "description": "Is GetSales Task Failed?",
         "position": [
@@ -4360,7 +4360,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Was LinkedIn Connection Accepted?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Was LinkedIn Connection Accepted?",
         "description": "Was LinkedIn Connection Accepted?",
         "position": [
@@ -4474,7 +4474,7 @@ export const PRESET_WORKFLOWS: N8nWorkflowDefinition[] = [
         "name": "Is LinkedIn Message Sent?",
         "type": "n8n-nodes-base.if",
         "category": "logic",
-        "service": "if",
+        "service": "Logic Router",
         "operation": "Is LinkedIn Message Sent?",
         "description": "Is LinkedIn Message Sent?",
         "position": [
@@ -4787,13 +4787,20 @@ export function parseN8nJsonToWorkflow(
       let service = typeStr.split(".").pop() || "n8n";
       if (typeStr.includes("supabase")) service = "Supabase";
       else if (typeStr.includes("telegram")) service = "Telegram";
-      else if (typeStr.includes("email")) service = "Email";
-      else if (typeStr.includes("code")) service = "Code";
-      else if (typeStr.includes("httpRequest")) service = "HTTP Request";
+      else if (typeStr.includes("email") || typeStr.includes("gmail")) service = "Email";
+      else if (typeStr.includes("code") || typeStr.includes("function")) service = "Code";
+      else if (typeStr.includes("httpRequest")) {
+        if (String(n.name).toLowerCase().includes("getsales") || JSON.stringify(params).toLowerCase().includes("getsales")) {
+          service = "GetSales API";
+        } else {
+          service = "HTTP Request";
+        }
+      }
       else if (typeStr.includes("webhook")) service = "Webhook";
       else if (typeStr.includes("scheduleTrigger")) service = "Schedule";
       else if (typeStr.includes("errorTrigger")) service = "Error Trigger";
       else if (typeStr.includes("executeWorkflow")) service = "Sub-Workflow";
+      else if (typeStr.includes(".if") || typeStr.includes(".switch")) service = "Logic Router";
 
       const op = params?.operation ? String(params.operation) : String(n.name || service);
 

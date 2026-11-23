@@ -107,6 +107,57 @@ export async function getWorkflowStatuses(): Promise<WorkflowTelemetry[]> {
       // automation_errors table might be empty or unmigrated
     }
 
+    // 8. Telemetry for WF-08 (GetSales Callback Handler + Task Monitor)
+    let getsalesProspectsCount = 0;
+    let getsalesHeartbeat: string | null = null;
+    try {
+      const { count: gsCount } = await supabase
+        .from("prospects")
+        .select("*", { count: "exact", head: true })
+        .not("getsales_lead_uuid", "is", null);
+      getsalesProspectsCount = gsCount || 0;
+
+      const { data: latestGsProspect } = await supabase
+        .from("prospects")
+        .select("getsales_action_started_at")
+        .not("getsales_action_started_at", "is", null)
+        .order("getsales_action_started_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      const { data: gsAccounts } = await supabase
+        .from("linkedin_accounts")
+        .select("getsales_data, updated_at")
+        .not("getsales_account_uuid", "is", null)
+        .limit(10);
+
+      const candidateTimestamps: string[] = [];
+      if (latestGsProspect?.getsales_action_started_at) {
+        candidateTimestamps.push(latestGsProspect.getsales_action_started_at);
+      }
+      if (gsAccounts && gsAccounts.length > 0) {
+        for (const acc of gsAccounts) {
+          const gsData = acc.getsales_data as Record<string, unknown> | null;
+          if (gsData?.last_tasks_heartbeat_at && typeof gsData.last_tasks_heartbeat_at === "string") {
+            candidateTimestamps.push(gsData.last_tasks_heartbeat_at);
+          }
+          if (gsData?.last_messages_heartbeat_at && typeof gsData.last_messages_heartbeat_at === "string") {
+            candidateTimestamps.push(gsData.last_messages_heartbeat_at);
+          }
+          if (acc.updated_at) {
+            candidateTimestamps.push(acc.updated_at);
+          }
+        }
+      }
+
+      if (candidateTimestamps.length > 0) {
+        candidateTimestamps.sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+        getsalesHeartbeat = candidateTimestamps[0];
+      }
+    } catch (e) {
+      console.warn("Could not query GetSales telemetry:", e);
+    }
+
     return [
       {
         id: "WF-01",
@@ -176,24 +227,24 @@ export async function getWorkflowStatuses(): Promise<WorkflowTelemetry[]> {
       },
       {
         id: "WF-07",
-        name: "Outreach Error Recovery & Incident Logger",
+        name: "Error Recovery",
         category: "Resilience",
-        description: "Catches unexpected execution errors, writes incident logs to automation_errors, and broadcasts instant alerts to Telegram.",
+        description: "Error Trigger → Format Error Details → Save Automation Error to Supabase → Send Telegram Alert.",
         status: openErrorsCount > 0 ? "warning" : "healthy",
         lastRunAt: latestErrorTime,
-        metricLabel: "Incident Status",
-        metricValue: openErrorsCount > 0 ? `${openErrorsCount} Unresolved` : "0 Incidents",
+        metricLabel: "Open Incidents",
+        metricValue: `${openErrorsCount} active`,
         triggerEndpoint: "/api/webhooks/n8n",
       },
       {
         id: "WF-08",
-        name: "GetSales Task Monitor & Bi-Directional Sync",
+        name: "GetSales Callback Handler + Task Monitor",
         category: "Sync Engine",
-        description: "Polls GetSales.io task statuses, monitors connection acceptances and message delivery confirmations, and synchronizes state with Supabase.",
+        description: "Flow A (Task Monitor): Schedule Trigger → Get Recent GetSales Tasks → Extract Tasks → Find Prospect → Check Task Status → Update Action Status. Flow B (LinkedIn Callback): Webhook → Find Prospect → Check Connection/Message Result → Log Successful Message or Update Connection Status → Update Prospect Progress.",
         status: "healthy",
-        lastRunAt: latestEvent?.sent_at || null,
-        metricLabel: "Task Status Monitor",
-        metricValue: "Active Sync",
+        lastRunAt: getsalesHeartbeat,
+        metricLabel: "GetSales Synced Leads",
+        metricValue: `${getsalesProspectsCount || 0} enrolled`,
         triggerEndpoint: "/api/webhooks/n8n",
       },
     ];

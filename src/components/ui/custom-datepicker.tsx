@@ -9,7 +9,6 @@ import {
   Check, 
   X, 
   RotateCcw,
-  Sparkles,
   Clock,
   TrendingUp,
   CalendarDays

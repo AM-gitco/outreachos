@@ -46,17 +46,17 @@ const metaMap = {
   },
   'WF-07': {
     code: 'WF-07',
-    name: 'Outreach Error Recovery & Incident Logger',
+    name: 'Error Recovery',
     category: 'Resilience',
-    description: 'Catches unexpected n8n execution failures, writes error telemetry to automation_errors table, and broadcasts emergency alerts to Telegram.',
-    metricLabel: 'Active Incidents',
+    description: 'Error Trigger → Format Error Details → Save Automation Error to Supabase → Send Telegram Alert.',
+    metricLabel: 'Open Incidents',
   },
   'WF-08': {
     code: 'WF-08',
-    name: 'GetSales Task Monitor & Bi-Directional Sync',
+    name: 'GetSales Callback Handler + Task Monitor',
     category: 'Sync Engine',
-    description: 'Polls GetSales.io task statuses, monitors connection acceptances and message delivery confirmations, and synchronizes state with Supabase.',
-    metricLabel: 'API Sync Pulse',
+    description: 'Flow A (Task Monitor): Schedule Trigger → Get Recent GetSales Tasks → Extract Tasks → Find Prospect → Check Task Status → Update Action Status. Flow B (LinkedIn Callback): Webhook → Find Prospect → Check Connection/Message Result → Log Successful Message or Update Connection Status → Update Prospect Progress.',
+    metricLabel: 'GetSales Synced Leads',
   },
 };
 
@@ -107,13 +107,20 @@ function parseN8n(id, rawJsonStr) {
     let service = typeStr.split('.').pop() || 'n8n';
     if (typeStr.includes('supabase')) service = 'Supabase';
     else if (typeStr.includes('telegram')) service = 'Telegram';
-    else if (typeStr.includes('email')) service = 'Email';
-    else if (typeStr.includes('code')) service = 'Code';
-    else if (typeStr.includes('httpRequest')) service = 'HTTP Request';
+    else if (typeStr.includes('email') || typeStr.includes('gmail')) service = 'Email';
+    else if (typeStr.includes('code') || typeStr.includes('function')) service = 'Code';
+    else if (typeStr.includes('httpRequest')) {
+      if (String(n.name).toLowerCase().includes('getsales') || JSON.stringify(params).toLowerCase().includes('getsales')) {
+        service = 'GetSales API';
+      } else {
+        service = 'HTTP Request';
+      }
+    }
     else if (typeStr.includes('webhook')) service = 'Webhook';
     else if (typeStr.includes('scheduleTrigger')) service = 'Schedule';
     else if (typeStr.includes('errorTrigger')) service = 'Error Trigger';
     else if (typeStr.includes('executeWorkflow')) service = 'Sub-Workflow';
+    else if (typeStr.includes('.if') || typeStr.includes('.switch')) service = 'Logic Router';
 
     let op = params.operation ? String(params.operation) : n.name;
 
@@ -291,13 +298,20 @@ export function parseN8nJsonToWorkflow(
       let service = typeStr.split(".").pop() || "n8n";
       if (typeStr.includes("supabase")) service = "Supabase";
       else if (typeStr.includes("telegram")) service = "Telegram";
-      else if (typeStr.includes("email")) service = "Email";
-      else if (typeStr.includes("code")) service = "Code";
-      else if (typeStr.includes("httpRequest")) service = "HTTP Request";
+      else if (typeStr.includes("email") || typeStr.includes("gmail")) service = "Email";
+      else if (typeStr.includes("code") || typeStr.includes("function")) service = "Code";
+      else if (typeStr.includes("httpRequest")) {
+        if (String(n.name).toLowerCase().includes("getsales") || JSON.stringify(params).toLowerCase().includes("getsales")) {
+          service = "GetSales API";
+        } else {
+          service = "HTTP Request";
+        }
+      }
       else if (typeStr.includes("webhook")) service = "Webhook";
       else if (typeStr.includes("scheduleTrigger")) service = "Schedule";
       else if (typeStr.includes("errorTrigger")) service = "Error Trigger";
       else if (typeStr.includes("executeWorkflow")) service = "Sub-Workflow";
+      else if (typeStr.includes(".if") || typeStr.includes(".switch")) service = "Logic Router";
 
       const op = params?.operation ? String(params.operation) : String(n.name || service);
 

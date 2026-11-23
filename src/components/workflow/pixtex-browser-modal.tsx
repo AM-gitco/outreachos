@@ -6,20 +6,19 @@ import {
   Copy,
   Check,
   RefreshCw,
-  ArrowLeft,
-  ArrowRight,
   Maximize2,
   Minimize2,
   X,
-  FileCode,
   Globe,
   Download,
-  AlertCircle,
-  HelpCircle,
-  Share2
+  Layers,
+  ArrowRight,
+  ShieldCheck,
+  FileCode
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { N8nWorkflowDefinition } from "@/lib/n8n/workflows-data";
+import { CustomDropdown, DropdownOption } from "@/components/ui/custom-dropdown";
+import { PRESET_WORKFLOWS, N8nWorkflowDefinition } from "@/lib/n8n/workflows-data";
 import { cn } from "@/lib/utils";
 
 interface PixtexBrowserModalProps {
@@ -32,104 +31,124 @@ interface PixtexBrowserModalProps {
 export function PixtexBrowserModal({
   open,
   onOpenChange,
-  workflow,
+  workflow: initialWorkflow,
   onExportJson,
 }: PixtexBrowserModalProps) {
-  const [copiedJson, setCopiedJson] = React.useState(false);
+  const [selectedWorkflowId, setSelectedWorkflowId] = React.useState(initialWorkflow.id);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
-  const [showJsonPreview, setShowJsonPreview] = React.useState(false);
-  const [currentUrl, setCurrentUrl] = React.useState("https://pixtex.dev/");
-  const [inputUrl, setInputUrl] = React.useState("https://pixtex.dev/");
+  const [iframeKey, setIframeKey] = React.useState(0);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [copiedJson, setCopiedJson] = React.useState(false);
 
-  const workflowJsonString = React.useMemo(() => {
-    return workflow.rawJson || JSON.stringify(workflow, null, 2);
-  }, [workflow]);
+  // Sync with prop when opened or prop changes
+  React.useEffect(() => {
+    setSelectedWorkflowId(initialWorkflow.id);
+    setIframeKey((prev) => prev + 1);
+    setIsLoading(true);
+  }, [initialWorkflow.id, open]);
 
-  // Handle Copy Workflow JSON
-  const handleCopyJson = () => {
-    navigator.clipboard.writeText(workflowJsonString);
-    setCopiedJson(true);
-    setTimeout(() => setCopiedJson(false), 2500);
+  const currentWorkflow = React.useMemo(() => {
+    return PRESET_WORKFLOWS.find((w) => w.id === selectedWorkflowId) || initialWorkflow;
+  }, [selectedWorkflowId, initialWorkflow]);
+
+  const dropdownOptions: DropdownOption[] = React.useMemo(() => {
+    return PRESET_WORKFLOWS.map((w) => ({
+      value: w.id,
+      label: `${w.code} · ${w.name} (${w.nodes.length} nodes)`,
+    }));
+  }, []);
+
+  const handleSelectWorkflow = (wfId: string) => {
+    setSelectedWorkflowId(wfId);
+    setIsLoading(true);
+    setIframeKey((k) => k + 1);
   };
 
-  // Launch in dedicated window
-  const handleLaunchExternal = () => {
-    handleCopyJson();
-    window.open("https://pixtex.dev/", "PixtexWorkflowViewer", "width=1280,height=820,menubar=no,toolbar=no");
+  const handleRefresh = () => {
+    setIsLoading(true);
+    setIframeKey((k) => k + 1);
+  };
+
+  const handleOpenInNewTab = () => {
+    window.open(`/pixtex-viewer?wf=${currentWorkflow.id}`, "_blank");
+  };
+
+  const handleCopyJson = () => {
+    const raw = currentWorkflow.rawJson || JSON.stringify(currentWorkflow, null, 2);
+    navigator.clipboard.writeText(raw);
+    setCopiedJson(true);
+    setTimeout(() => setCopiedJson(false), 2000);
   };
 
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xs flex items-center justify-center p-2 sm:p-4 animate-in fade-in duration-200">
       <div
         className={cn(
           "bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 w-full",
           isFullscreen
             ? "fixed inset-0 rounded-none h-screen w-screen"
-            : "max-w-5xl h-[88vh] max-h-[860px]"
+            : "max-w-6xl h-[90vh] max-h-[900px]"
         )}
       >
-        {/* Browser Chrome Window Header */}
+        {/* Browser Chrome Header */}
         <div className="bg-muted/70 border-b border-border/80 px-4 py-2.5 flex items-center justify-between gap-3 shrink-0 select-none">
-          {/* Mac/Windows Style Window Controls */}
+          {/* Window Buttons */}
           <div className="flex items-center gap-2 shrink-0">
-            <span
+            <button
+              type="button"
               onClick={() => onOpenChange(false)}
-              className="h-3 w-3 rounded-full bg-rose-500 hover:opacity-80 cursor-pointer inline-block"
+              className="h-3 w-3 rounded-full bg-rose-500 hover:opacity-80 cursor-pointer transition-opacity"
               title="Close window"
             />
-            <span
+            <button
+              type="button"
               onClick={() => setIsFullscreen(!isFullscreen)}
-              className="h-3 w-3 rounded-full bg-amber-500 hover:opacity-80 cursor-pointer inline-block"
+              className="h-3 w-3 rounded-full bg-amber-500 hover:opacity-80 cursor-pointer transition-opacity"
               title="Toggle fullscreen"
             />
             <span
-              onClick={() => {}}
-              className="h-3 w-3 rounded-full bg-emerald-500 hover:opacity-80 cursor-pointer inline-block"
+              className="h-3 w-3 rounded-full bg-emerald-500 opacity-80 inline-block"
               title="Active window"
             />
-
-            <span className="text-[11px] font-semibold text-muted-foreground ml-2 hidden sm:inline">
-              In-Dashboard Browser
+            <span className="text-[11px] font-bold text-foreground ml-2 hidden sm:inline">
+              In-Dashboard Pixtex Browser
             </span>
           </div>
 
           {/* Browser Navigation & Address Bar */}
-          <div className="flex-1 max-w-xl flex items-center gap-1.5 bg-background border border-border/80 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
-            <Globe className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-            <input
-              type="text"
-              value={inputUrl}
-              onChange={(e) => setInputUrl(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  setCurrentUrl(inputUrl);
-                }
-              }}
-              className="bg-transparent text-foreground text-xs w-full focus:outline-none font-mono"
-            />
+          <div className="flex-1 max-w-2xl flex items-center gap-1.5 bg-background border border-border/80 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
+            <Globe className="h-3.5 w-3.5 text-primary shrink-0" />
+            <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] truncate flex-1">
+              <span className="text-foreground font-semibold">https://pixtex.dev</span>
+              <span>/</span>
+              <span className="text-primary font-bold">viewer?wf={currentWorkflow.code}</span>
+              <span className="text-[10px] text-muted-foreground/80 hidden md:inline">
+                ({currentWorkflow.nodes.length} nodes pre-loaded)
+              </span>
+            </div>
             <button
               type="button"
-              onClick={() => setCurrentUrl(inputUrl)}
+              onClick={handleRefresh}
               className="text-muted-foreground hover:text-foreground p-0.5"
-              title="Refresh / Navigate"
+              title="Reload Pixtex with this workflow"
             >
-              <RefreshCw className="h-3 w-3" />
+              <RefreshCw className={cn("h-3 w-3", isLoading && "animate-spin text-primary")} />
             </button>
           </div>
 
-          {/* Window Action Buttons */}
+          {/* Right Action Controls */}
           <div className="flex items-center gap-1.5 shrink-0">
             <Button
               variant="outline"
               size="sm"
-              onClick={handleLaunchExternal}
+              onClick={handleOpenInNewTab}
               className="h-7 text-xs font-semibold px-2.5 rounded-lg border-border/80 hover:bg-muted gap-1 text-primary"
-              title="Open Pixtex.dev in a new window"
+              title="Open this pre-loaded Pixtex view in a full browser tab"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Launch Pixtex.dev</span>
+              <span className="hidden sm:inline">Open in New Tab</span>
             </Button>
 
             <Button
@@ -154,17 +173,23 @@ export function PixtexBrowserModal({
           </div>
         </div>
 
-        {/* Workflow Quick Action Helper Ribbon */}
-        <div className="bg-primary/5 border-b border-border/70 px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shrink-0 text-xs">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20">
-              {workflow.code}
+        {/* Workflow Switcher & Pre-Load Status Ribbon */}
+        <div className="bg-primary/5 border-b border-border/70 px-4 py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shrink-0 text-xs">
+          {/* Workflow Selector inside the Browser */}
+          <div className="flex items-center gap-2 flex-wrap min-w-0">
+            <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground shrink-0">
+              Active Workflow:
             </span>
-            <span className="font-semibold text-foreground truncate max-w-xs sm:max-w-md">
-              {workflow.name}
-            </span>
-            <span className="text-[10px] text-muted-foreground">
-              ({workflow.nodes.length} nodes ready to render)
+            <div className="w-56 sm:w-72">
+              <CustomDropdown
+                options={dropdownOptions}
+                value={selectedWorkflowId}
+                onChange={handleSelectWorkflow}
+                className="h-7.5 text-xs font-semibold rounded-lg bg-card"
+              />
+            </div>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-semibold shrink-0">
+              ✓ Pre-loaded (No paste needed)
             </span>
           </div>
 
@@ -174,22 +199,13 @@ export function PixtexBrowserModal({
               size="sm"
               onClick={handleCopyJson}
               className={cn(
-                "h-7 text-xs font-semibold px-2.5 rounded-lg gap-1.5 transition-all shadow-2xs",
+                "h-7 text-xs font-medium px-2 rounded-lg border-border/80 hover:bg-muted gap-1 text-muted-foreground",
                 copiedJson && "bg-emerald-600 text-white border-emerald-600"
               )}
-              title="Copy this workflow JSON to clipboard to paste into Pixtex"
+              title="Copy JSON as backup"
             >
-              {copiedJson ? (
-                <>
-                  <Check className="h-3.5 w-3.5" />
-                  <span>JSON Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="h-3.5 w-3.5" />
-                  <span>Copy Workflow JSON</span>
-                </>
-              )}
+              {copiedJson ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+              <span className="hidden sm:inline">{copiedJson ? "Copied" : "Copy JSON"}</span>
             </Button>
 
             {onExportJson && (
@@ -197,104 +213,38 @@ export function PixtexBrowserModal({
                 variant="outline"
                 size="sm"
                 onClick={onExportJson}
-                className="h-7 text-xs font-medium px-2 rounded-lg border-border/80 hover:bg-muted"
-                title="Download .json file"
+                className="h-7 text-xs font-medium px-2 rounded-lg border-border/80 hover:bg-muted gap-1 text-muted-foreground"
+                title="Download workflow .json"
               >
-                <Download className="h-3 w-3 sm:mr-1" />
-                <span className="hidden sm:inline">Download JSON</span>
+                <Download className="h-3 w-3" />
+                <span className="hidden sm:inline">JSON</span>
               </Button>
             )}
-
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowJsonPreview(!showJsonPreview)}
-              className="h-7 text-xs font-medium px-2 rounded-lg text-muted-foreground hover:text-foreground"
-            >
-              <FileCode className="h-3.5 w-3.5 sm:mr-1" />
-              <span className="hidden sm:inline">{showJsonPreview ? "Hide JSON" : "View JSON"}</span>
-            </Button>
           </div>
         </div>
 
-        {/* Browser Viewport Area */}
-        <div className="flex-1 relative overflow-hidden bg-background flex flex-col">
-          {showJsonPreview ? (
-            /* JSON Code Preview Mode */
-            <div className="flex-1 overflow-auto p-4 bg-muted/20 font-mono text-xs text-foreground leading-relaxed">
-              <pre className="whitespace-pre-wrap">{workflowJsonString}</pre>
-            </div>
-          ) : (
-            /* Interactive Pixtex Viewer & Browser Interface */
-            <div className="flex-1 flex flex-col items-center justify-center p-6 text-center space-y-6 overflow-auto">
-              {/* Notice Card on Frame Embedding */}
-              <div className="max-w-xl w-full border border-border/80 rounded-2xl bg-card p-6 shadow-md space-y-4 text-left">
-                <div className="flex items-start gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
-                    <Globe className="h-5 w-5" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-sm font-bold text-foreground">
-                      Pixtex n8n Workflow Visualizer
-                    </h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">
-                      Pixtex (<code className="font-mono text-foreground font-semibold">https://pixtex.dev/</code>) is a dedicated developer tool that renders pixel-perfect n8n workflows into high-resolution diagrams.
-                    </p>
-                  </div>
-                </div>
-
-                {/* 3 Step Instruction Guide */}
-                <div className="border border-border/60 rounded-xl bg-muted/30 p-3.5 space-y-2 text-xs">
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-                    How to render in 2 clicks:
-                  </span>
-                  <div className="space-y-1.5 text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">1</span>
-                      <span>Click <strong className="text-foreground">Copy Workflow JSON</strong> button above.</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">2</span>
-                      <span>Click <strong className="text-foreground">Launch Pixtex.dev</strong> below to open the canvas.</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="h-4 w-4 rounded-full bg-primary/15 text-primary text-[10px] font-bold flex items-center justify-center shrink-0">3</span>
-                      <span>Press <kbd className="px-1.5 py-0.5 rounded bg-muted border border-border font-mono text-[10px] text-foreground">Ctrl+V</kbd> (or Cmd+V) to drop the workflow into Pixtex.</span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Launch Button */}
-                <div className="flex flex-col sm:flex-row items-center gap-2.5 pt-2">
-                  <Button
-                    variant="default"
-                    size="default"
-                    onClick={handleLaunchExternal}
-                    className="w-full sm:w-auto text-xs font-semibold rounded-xl gap-2 shadow-xs"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                    <span>Copy JSON & Launch Pixtex.dev</span>
-                  </Button>
-
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={() => {
-                      onOpenChange(false);
-                    }}
-                    className="w-full sm:w-auto text-xs font-medium rounded-xl border-border/80 hover:bg-muted"
-                  >
-                    View in Built-in Canvas Instead
-                  </Button>
-                </div>
-              </div>
-
-              {/* Informational Footer Note */}
-              <p className="text-[11px] text-muted-foreground max-w-md">
-                Tip: OutreachOS also includes a full native interactive canvas with pan, zoom, node inspection, and PNG export built directly into the dashboard.
-              </p>
+        {/* Pixtex Viewport Frame */}
+        <div className="flex-1 relative overflow-hidden bg-background">
+          {isLoading && (
+            <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2.5 text-xs">
+              <RefreshCw className="h-5 w-5 animate-spin text-primary" />
+              <span className="font-semibold text-foreground">
+                Loading Pixtex Visualizer with {currentWorkflow.code} ({currentWorkflow.nodes.length} nodes)...
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                Connecting directly to pixtex.dev engine with automated workflow injection
+              </span>
             </div>
           )}
+
+          <iframe
+            key={`${currentWorkflow.id}-${iframeKey}`}
+            src={`/pixtex-viewer?wf=${currentWorkflow.id}`}
+            title={`Pixtex Workflow Visualizer - ${currentWorkflow.name}`}
+            onLoad={() => setIsLoading(false)}
+            className="w-full h-full border-none bg-background"
+            allow="clipboard-write; clipboard-read"
+          />
         </div>
       </div>
     </div>
