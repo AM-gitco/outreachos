@@ -20,16 +20,22 @@ import {
   Bot,
   Eye,
   FileCode,
-  FileDown
+  FileDown,
+  BookOpen
 } from "lucide-react";
 import { LinkedinIcon } from "@/components/icons/linkedin";
 import { Button } from "@/components/ui/button";
+import { ReadmeViewer } from "@/components/assignment/readme-viewer";
 import { PRESET_WORKFLOWS } from "@/lib/n8n/workflows-data";
 import { downloadWorkflowsZip } from "@/lib/n8n/zip-helper";
 import { cn } from "@/lib/utils";
 
-export function AssignmentView() {
-  const [activeTab, setActiveTab] = React.useState<"spec" | "pdf">("spec");
+interface AssignmentViewProps {
+  readmeContent?: string;
+}
+
+export function AssignmentView({ readmeContent = "" }: AssignmentViewProps) {
+  const [activeTab, setActiveTab] = React.useState<"handbook" | "spec" | "pdf">("handbook");
   const [isDownloadingZip, setIsDownloadingZip] = React.useState(false);
 
   const handleDownloadAllZip = async () => {
@@ -51,24 +57,38 @@ export function AssignmentView() {
         <div>
           <div className="flex items-center gap-2.5 flex-wrap">
             <h1 className="text-lg sm:text-xl font-bold tracking-tight text-foreground">
-              Assignment & Requirements Specification
+              Documentation & Assignment Center
             </h1>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-primary/10 text-primary border border-primary/20 tabular-nums">
-              7 Pages · 13 Sections
+              12 Handbook Sections · 7 Spec Pages
             </span>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 tabular-nums">
-              8/8 Workflows Implemented
+              8/8 Workflows Deployed
             </span>
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Multi-Channel Outreach Automation (LinkedIn + Email) orchestrated with Clay, n8n, GetSales.io & Supabase.
+            Technical implementation handbook, Supabase architecture, and the official Multi-Channel Outreach specification.
           </p>
         </div>
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2 flex-wrap shrink-0">
-          {/* Tab Switcher: Structured Spec vs Embedded PDF */}
+          {/* Tab Switcher: Handbook vs Spec vs PDF */}
           <div className="flex items-center border border-border/80 rounded-lg p-0.5 bg-muted/30 text-xs font-semibold">
+            <button
+              type="button"
+              onClick={() => setActiveTab("handbook")}
+              className={cn(
+                "px-3 py-1 rounded-md transition-all cursor-pointer flex items-center gap-1.5",
+                activeTab === "handbook"
+                  ? "bg-background text-foreground shadow-xs font-bold text-primary"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              <span>Project Handbook (README)</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setActiveTab("spec")}
@@ -80,7 +100,7 @@ export function AssignmentView() {
               )}
             >
               <FileText className="h-3.5 w-3.5" />
-              <span>Structured Spec</span>
+              <span>Assignment Spec</span>
             </button>
 
             <button
@@ -94,7 +114,7 @@ export function AssignmentView() {
               )}
             >
               <FileDown className="h-3.5 w-3.5" />
-              <span>Original PDF Document</span>
+              <span>Original PDF</span>
             </button>
           </div>
 
@@ -106,7 +126,7 @@ export function AssignmentView() {
             title="Download the official requirements PDF file"
           >
             <Download className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Download PDF</span>
+            <span className="hidden sm:inline">PDF</span>
           </a>
 
           {/* Download All Workflows as ZIP */}
@@ -116,7 +136,7 @@ export function AssignmentView() {
             onClick={handleDownloadAllZip}
             disabled={isDownloadingZip}
             className="h-8 text-xs font-semibold gap-1.5 rounded-lg shadow-xs"
-            title="Download all 8 workflows and the requirements PDF in a single ZIP archive"
+            title="Download all 8 workflows and documentation in a ZIP archive"
           >
             <Archive className="h-3.5 w-3.5" />
             <span>{isDownloadingZip ? "Packaging..." : "Download as ZIP"}</span>
@@ -125,8 +145,11 @@ export function AssignmentView() {
       </div>
 
       {/* Main Tab Content */}
-      {activeTab === "pdf" ? (
-        /* PDF Interactive Viewer Tab */
+      {activeTab === "handbook" ? (
+        /* Tab 1: Project Handbook (OutreachOS_README.md) */
+        <ReadmeViewer rawContent={readmeContent} />
+      ) : activeTab === "pdf" ? (
+        /* Tab 3: PDF Interactive Viewer Tab */
         <div className="space-y-3">
           <div className="flex items-center justify-between p-3 rounded-xl bg-card border border-border/80 text-xs">
             <div className="flex items-center gap-2">
@@ -158,7 +181,7 @@ export function AssignmentView() {
           </div>
         </div>
       ) : (
-        /* Structured Requirements Specification Tab */
+        /* Tab 2: Structured Requirements Specification Tab */
         <div className="space-y-8">
           {/* Executive Architecture Banner */}
           <div className="rounded-2xl border border-border/80 bg-card p-5 shadow-xs space-y-4">
