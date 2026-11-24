@@ -18,6 +18,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: `${APP_NAME} — ${APP_DESCRIPTION}`,
   description: "Enterprise outreach operations dashboard connecting Supabase with n8n automation workflows.",
+  icons: {
+    icon: [
+      { url: "/logo.svg", type: "image/svg+xml" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: "/logo.svg",
+  },
 };
 
 export const viewport: Viewport = {

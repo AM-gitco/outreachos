@@ -347,16 +347,16 @@ function WorkflowCanvasInner({
 
         {/* Right: Actions */}
         <div className="flex items-center gap-1.5 shrink-0 flex-wrap">
-          {/* In-Dashboard Pixtex Browser Button */}
+          {/* In-Dashboard Fullscreen Visualizer Button */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsPixtexModalOpen(true)}
             className="h-7.5 text-xs font-semibold px-2.5 rounded-lg border-border/80 hover:bg-muted text-primary gap-1.5"
-            title="Open in-built dashboard browser to view same to same in pixtex.dev"
+            title="Open standalone workflow visualizer and inspector"
           >
             <Globe className="h-3.5 w-3.5" />
-            <span>Pixtex Browser</span>
+            <span>Visualizer</span>
           </Button>
 
           {/* Download as ZIP (All Workflows) */}
@@ -562,10 +562,10 @@ function WorkflowCanvasInner({
                 type="button"
                 onClick={() => setIsPixtexModalOpen(true)}
                 className="text-[10px] font-semibold text-primary hover:underline flex items-center gap-1 px-1"
-                title="Open in Pixtex"
+                title="Open in Visualizer"
               >
                 <Globe className="h-3 w-3" />
-                <span>Pixtex</span>
+                <span>Visualizer</span>
               </button>
             </div>
           </div>

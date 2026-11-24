@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { SendHorizontal, Lock, Mail, AlertCircle, ShieldCheck } from "lucide-react";
 import { APP_NAME, APP_DESCRIPTION } from "@/lib/constants";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
+import { OutreachLogo } from "@/components/icons/outreach-logo";
 
 export default function LoginPage() {
   const [state, formAction, isPending] = useActionState<AuthResponse | null, FormData>(
@@ -25,16 +26,21 @@ export default function LoginPage() {
 
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
-        <div className="flex flex-col items-center text-center space-y-2">
-          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/25">
-            <SendHorizontal className="h-6 w-6" />
+        <div className="flex flex-col items-center text-center space-y-3">
+          <OutreachLogo size={56} className="shadow-xl shadow-primary/20 hover:scale-105 transition-transform duration-300" />
+          <div className="space-y-1">
+            <div className="flex items-center justify-center gap-2">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                {APP_NAME}
+              </h1>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-semibold tracking-wider uppercase">
+                v1.0
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground max-w-sm">
+              {APP_DESCRIPTION}
+            </p>
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
-            {APP_NAME}
-          </h1>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            {APP_DESCRIPTION}
-          </p>
         </div>
 
         {/* Login Card */}

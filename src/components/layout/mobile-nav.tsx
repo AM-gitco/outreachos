@@ -17,6 +17,7 @@ import {
   FileText,
 } from "lucide-react";
 import { LinkedinIcon } from "@/components/icons/linkedin";
+import { OutreachLogo } from "@/components/icons/outreach-logo";
 import { NAVIGATION_ITEMS, APP_NAME } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -69,14 +70,17 @@ export function MobileNav() {
         {/* Brand Header — Matches Desktop Sidebar */}
         <SheetHeader className="p-4 border-b border-border/80 text-left">
           <SheetTitle className="flex items-center gap-3">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-xs">
-              <SendHorizontal className="h-4 w-4" />
-            </div>
+            <OutreachLogo size={34} />
             <div className="flex flex-col">
-              <span className="text-sm font-bold tracking-tight text-foreground leading-none">
-                {APP_NAME}
-              </span>
-              <span className="text-xs text-muted-foreground font-normal tracking-wide mt-1 leading-none">
+              <div className="flex items-center gap-1.5 leading-none">
+                <span className="text-sm font-bold tracking-tight text-foreground leading-none">
+                  {APP_NAME}
+                </span>
+                <span className="text-[9px] font-mono px-1 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-semibold tracking-wider uppercase leading-none">
+                  v1.0
+                </span>
+              </div>
+              <span className="text-[11px] text-muted-foreground font-normal tracking-wide mt-1 leading-none">
                 Outreach Engine
               </span>
             </div>

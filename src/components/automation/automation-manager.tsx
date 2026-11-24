@@ -198,16 +198,16 @@ export function AutomationManager({
             </button>
           </div>
 
-          {/* Pixtex Browser Modal Trigger */}
+          {/* Workflow Visualizer Modal Trigger */}
           <Button
             variant="outline"
             size="sm"
             onClick={() => setIsPixtexBrowserOpen(true)}
             className="h-8 text-xs font-semibold gap-1.5 rounded-lg border-border/80 hover:bg-muted text-primary"
-            title="Open in-dashboard Pixtex browser"
+            title="Open in-dashboard workflow visualizer"
           >
             <Globe className="h-3.5 w-3.5" />
-            <span className="hidden sm:inline">Pixtex Browser</span>
+            <span className="hidden sm:inline">Visualizer</span>
           </Button>
 
           {/* Download All as ZIP */}

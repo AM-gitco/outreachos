@@ -113,7 +113,7 @@ export function PixtexBrowserModal({
               title="Active window"
             />
             <span className="text-[11px] font-bold text-foreground ml-2 hidden sm:inline">
-              In-Dashboard Pixtex Browser
+              Workflow Visualizer & Inspector
             </span>
           </div>
 
@@ -121,18 +121,18 @@ export function PixtexBrowserModal({
           <div className="flex-1 max-w-2xl flex items-center gap-1.5 bg-background border border-border/80 rounded-lg px-2.5 py-1 text-xs shadow-2xs">
             <Globe className="h-3.5 w-3.5 text-primary shrink-0" />
             <div className="flex items-center gap-1 text-muted-foreground font-mono text-[11px] truncate flex-1">
-              <span className="text-foreground font-semibold">https://pixtex.dev</span>
+              <span className="text-foreground font-semibold">outreachos://visualizer</span>
               <span>/</span>
-              <span className="text-primary font-bold">viewer?wf={currentWorkflow.code}</span>
+              <span className="text-primary font-bold">{currentWorkflow.code}</span>
               <span className="text-[10px] text-muted-foreground/80 hidden md:inline">
-                ({currentWorkflow.nodes.length} nodes pre-loaded)
+                ({currentWorkflow.nodes.length} nodes · Native Instant Engine)
               </span>
             </div>
             <button
               type="button"
               onClick={handleRefresh}
               className="text-muted-foreground hover:text-foreground p-0.5"
-              title="Reload Pixtex with this workflow"
+              title="Reload visualizer"
             >
               <RefreshCw className={cn("h-3 w-3", isLoading && "animate-spin text-primary")} />
             </button>
@@ -145,10 +145,10 @@ export function PixtexBrowserModal({
               size="sm"
               onClick={handleOpenInNewTab}
               className="h-7 text-xs font-semibold px-2.5 rounded-lg border-border/80 hover:bg-muted gap-1 text-primary"
-              title="Open this pre-loaded Pixtex view in a full browser tab"
+              title="Open standalone visualizer in full browser tab"
             >
               <ExternalLink className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Open in New Tab</span>
+              <span className="hidden sm:inline">Open Tab</span>
             </Button>
 
             <Button
@@ -223,16 +223,16 @@ export function PixtexBrowserModal({
           </div>
         </div>
 
-        {/* Pixtex Viewport Frame */}
+        {/* Native Visualizer Viewport Frame */}
         <div className="flex-1 relative overflow-hidden bg-background">
           {isLoading && (
-            <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-xs flex flex-col items-center justify-center gap-2.5 text-xs">
+            <div className="absolute inset-0 z-10 bg-background/90 backdrop-blur-xs flex flex-col items-center justify-center gap-2.5 text-xs">
               <RefreshCw className="h-5 w-5 animate-spin text-primary" />
               <span className="font-semibold text-foreground">
-                Loading Pixtex Visualizer with {currentWorkflow.code} ({currentWorkflow.nodes.length} nodes)...
+                Rendering {currentWorkflow.code} ({currentWorkflow.nodes.length} nodes, {currentWorkflow.connections.length} edges)...
               </span>
               <span className="text-[11px] text-muted-foreground">
-                Connecting directly to pixtex.dev engine with automated workflow injection
+                Instant self-contained vector visualizer with node inspector
               </span>
             </div>
           )}
@@ -240,7 +240,7 @@ export function PixtexBrowserModal({
           <iframe
             key={`${currentWorkflow.id}-${iframeKey}`}
             src={`/pixtex-viewer?wf=${currentWorkflow.id}`}
-            title={`Pixtex Workflow Visualizer - ${currentWorkflow.name}`}
+            title={`Workflow Visualizer - ${currentWorkflow.name}`}
             onLoad={() => setIsLoading(false)}
             className="w-full h-full border-none bg-background"
             allow="clipboard-write; clipboard-read"

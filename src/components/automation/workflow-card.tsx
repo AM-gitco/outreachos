@@ -165,10 +165,10 @@ export function WorkflowCard({ workflow, onInspectCanvas }: WorkflowCardProps) {
             size="sm"
             onClick={() => setIsPixtexOpen(true)}
             className="h-7 text-xs font-medium gap-1 text-muted-foreground hover:text-foreground rounded-lg px-2"
-            title="Open in-dashboard Pixtex browser"
+            title="Open in-dashboard workflow visualizer"
           >
             <Globe className="h-3 w-3 text-sky-500" />
-            <span className="hidden sm:inline">Pixtex</span>
+            <span className="hidden sm:inline">Visualizer</span>
           </Button>
 
           <Button
