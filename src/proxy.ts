@@ -16,14 +16,14 @@ export const middleware = proxy;
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - api/webhooks (external webhooks)
-     * - public asset patterns (svg, png, jpg, etc.)
+     * Match all request paths except:
+     * - _next/static, _next/image (Next.js assets)
+     * - favicon.ico, sitemap.xml, robots.txt
+     * - api/webhooks (external automated webhooks like n8n)
+     * - workflows, docs (public interactive viewers, downloads, and documentation)
+     * - all public static assets by extension
      */
-    "/((?!_next/static|_next/image|favicon.ico|api/webhooks|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|api/webhooks|workflows|docs|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|html|json|zip|md|txt)$).*)",
   ],
 };
 

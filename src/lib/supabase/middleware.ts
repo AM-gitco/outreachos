@@ -65,15 +65,30 @@ export async function updateSession(request: NextRequest) {
     if ((!user || error) && !isLoginPage) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
-      url.searchParams.set("redirectTo", request.nextUrl.pathname);
-      return NextResponse.redirect(url);
+      const targetPath = request.nextUrl.pathname + request.nextUrl.search;
+      if (targetPath !== "/" && targetPath !== "/login") {
+        url.searchParams.set("redirectTo", targetPath);
+      } else {
+        url.searchParams.delete("redirectTo");
+      }
+      const redirectResponse = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+      });
+      return redirectResponse;
     }
 
     // If authenticated and trying to access /login, redirect to /
     if (user && isLoginPage) {
       const url = request.nextUrl.clone();
-      url.pathname = "/";
-      return NextResponse.redirect(url);
+      const redirectTo = request.nextUrl.searchParams.get("redirectTo");
+      url.pathname = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
+      url.search = "";
+      const redirectResponse = NextResponse.redirect(url);
+      supabaseResponse.cookies.getAll().forEach((cookie) => {
+        redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
+      });
+      return redirectResponse;
     }
 
     return supabaseResponse;
@@ -85,7 +100,7 @@ export async function updateSession(request: NextRequest) {
     if (!isLoginPage) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
-      url.searchParams.set("redirectTo", request.nextUrl.pathname);
+      url.searchParams.delete("redirectTo");
       return NextResponse.redirect(url);
     }
 
