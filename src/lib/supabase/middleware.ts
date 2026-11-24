@@ -63,15 +63,12 @@ export async function updateSession(request: NextRequest) {
 
     // If unauthenticated and trying to access protected routes, redirect to /login
     if ((!user || error) && !isLoginPage) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
+      const redirectUrl = new URL("/login", request.url);
       const targetPath = request.nextUrl.pathname + request.nextUrl.search;
       if (targetPath !== "/" && targetPath !== "/login") {
-        url.searchParams.set("redirectTo", targetPath);
-      } else {
-        url.searchParams.delete("redirectTo");
+        redirectUrl.searchParams.set("redirectTo", targetPath);
       }
-      const redirectResponse = NextResponse.redirect(url);
+      const redirectResponse = NextResponse.redirect(redirectUrl);
       supabaseResponse.cookies.getAll().forEach((cookie) => {
         redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
       });
@@ -80,11 +77,11 @@ export async function updateSession(request: NextRequest) {
 
     // If authenticated and trying to access /login, redirect to /
     if (user && isLoginPage) {
-      const url = request.nextUrl.clone();
       const redirectTo = request.nextUrl.searchParams.get("redirectTo");
-      url.pathname = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
-      url.search = "";
-      const redirectResponse = NextResponse.redirect(url);
+      const destination =
+        redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
+      const redirectUrl = new URL(destination, request.url);
+      const redirectResponse = NextResponse.redirect(redirectUrl);
       supabaseResponse.cookies.getAll().forEach((cookie) => {
         redirectResponse.cookies.set(cookie.name, cookie.value, cookie);
       });
@@ -98,10 +95,8 @@ export async function updateSession(request: NextRequest) {
 
     // If unauthenticated or session failed, redirect protected pages to /login safely
     if (!isLoginPage) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.searchParams.delete("redirectTo");
-      return NextResponse.redirect(url);
+      const redirectUrl = new URL("/login", request.url);
+      return NextResponse.redirect(redirectUrl);
     }
 
     return supabaseResponse;

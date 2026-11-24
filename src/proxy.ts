@@ -10,8 +10,7 @@ export async function proxy(request: NextRequest) {
   }
 }
 
-// Backwards compatibility export
-export const middleware = proxy;
+export default proxy;
 
 export const config = {
   matcher: [
@@ -21,9 +20,9 @@ export const config = {
      * - favicon.ico, sitemap.xml, robots.txt
      * - api/webhooks (external automated webhooks like n8n)
      * - workflows, docs (public interactive viewers, downloads, and documentation)
-     * - all public static assets by extension
+     * - all public static assets with an extension
      */
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|api/webhooks|workflows|docs|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|html|json|zip|md|txt)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt|api/webhooks|workflows|docs|.*\\.[\\w]+$).*)",
   ],
 };
 
