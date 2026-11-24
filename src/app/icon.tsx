@@ -16,28 +16,40 @@ export default function Icon() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          background: "#09090b",
+          background: "#090d16",
           borderRadius: 8,
-          border: "1px solid rgba(255, 255, 255, 0.15)",
+          border: "1.5px solid #38bdf8",
         }}
       >
         <svg
           width="22"
           height="22"
-          viewBox="0 0 48 48"
+          viewBox="0 0 64 64"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
         >
+          {/* Left Wing */}
           <path
-            d="M14 34L26 22L36 12M36 12H27M36 12V21"
-            stroke="#3b82f6"
-            strokeWidth="4.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
+            d="M 49 15 L 18 36 L 31 38 L 49 15 Z"
+            fill="#38bdf8"
           />
-          <circle cx="14" cy="34" r="3.5" fill="#3b82f6" />
-          <circle cx="26" cy="22" r="4.5" fill="#60a5fa" />
-          <circle cx="36" cy="12" r="3.5" fill="#93c5fd" />
+          {/* Right Wing */}
+          <path
+            d="M 49 15 L 31 38 L 37 49 L 49 15 Z"
+            fill="#2563eb"
+          />
+          {/* Spine */}
+          <line
+            x1="31"
+            y1="38"
+            x2="49"
+            y2="15"
+            stroke="#ffffff"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
+          {/* Apex beacon */}
+          <circle cx="49" cy="15" r="4" fill="#ffffff" />
         </svg>
       </div>
     ),

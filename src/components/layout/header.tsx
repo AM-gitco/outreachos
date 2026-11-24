@@ -2,7 +2,9 @@
 
 import * as React from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { MobileNav } from "@/components/layout/mobile-nav";
+import { OutreachLogo } from "@/components/icons/outreach-logo";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { UserMenu } from "@/components/layout/user-menu";
 import { NAVIGATION_ITEMS } from "@/lib/constants";
@@ -25,11 +27,14 @@ export function Header({ userEmail, userRole }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-40 flex h-16 w-full shrink-0 items-center justify-between border-b border-border bg-background/85 px-4 sm:px-6 backdrop-blur-md select-none transition-colors duration-200">
-      {/* Left side: Hamburger (mobile) + Breadcrumb */}
-      <div className="flex items-center gap-3">
+      {/* Left side: Hamburger (mobile) + Mobile Logo + Breadcrumb */}
+      <div className="flex items-center gap-2.5 sm:gap-3">
         <MobileNav />
-        <div className="flex items-center gap-2.5">
-          <span className="font-semibold text-foreground text-base tracking-tight leading-none">
+        <Link href="/" className="lg:hidden flex items-center shrink-0" title="OutreachOS">
+          <OutreachLogo size={30} />
+        </Link>
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <span className="font-semibold text-foreground text-sm sm:text-base tracking-tight leading-none">
             {currentItem.title}
           </span>
           <span className="hidden sm:inline-block text-muted-foreground/40 text-sm">/</span>

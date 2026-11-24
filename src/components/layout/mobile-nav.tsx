@@ -70,7 +70,7 @@ export function MobileNav() {
         {/* Brand Header — Matches Desktop Sidebar */}
         <SheetHeader className="p-4 border-b border-border/80 text-left">
           <SheetTitle className="flex items-center gap-3">
-            <OutreachLogo size={34} />
+            <OutreachLogo size={36} />
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5 leading-none">
                 <span className="text-sm font-bold tracking-tight text-foreground leading-none">

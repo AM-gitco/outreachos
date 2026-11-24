@@ -59,12 +59,21 @@ export function Sidebar({ collapsed, onToggleCollapse, className }: SidebarProps
       )}
     >
       {/* Brand Header */}
-      <div className="flex h-16 items-center px-3.5 border-b border-border/70 shrink-0 overflow-hidden">
+      <div
+        className={cn(
+          "flex h-16 items-center border-b border-border/70 shrink-0 overflow-hidden transition-all duration-300",
+          collapsed ? "justify-center px-0" : "px-4"
+        )}
+      >
         <Link
           href="/"
-          className="flex items-center gap-3 font-semibold overflow-hidden w-full group"
+          className={cn(
+            "flex items-center font-semibold overflow-hidden group select-none",
+            collapsed ? "justify-center w-auto" : "gap-3 w-full"
+          )}
+          title={collapsed ? `${APP_NAME} · Operations` : undefined}
         >
-          <OutreachLogo size={34} className="group-hover:scale-105 transition-transform duration-200" />
+          <OutreachLogo size={36} className="group-hover:scale-105 transition-transform duration-200 shrink-0" />
           <div
             className={cn(
               "flex flex-col overflow-hidden whitespace-nowrap transition-all duration-[2000ms] ease-[cubic-bezier(0.16,1,0.3,1)]",

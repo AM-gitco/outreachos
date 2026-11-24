@@ -27,10 +27,13 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="flex flex-col items-center text-center space-y-3">
-          <OutreachLogo size={56} className="shadow-xl shadow-primary/20 hover:scale-105 transition-transform duration-300" />
+          <div className="relative group">
+            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-blue-600 via-sky-500 to-indigo-600 opacity-40 blur-md group-hover:opacity-70 transition duration-500" />
+            <OutreachLogo size={64} className="relative rounded-2xl shadow-2xl hover:scale-105 transition-transform duration-300" />
+          </div>
           <div className="space-y-1">
             <div className="flex items-center justify-center gap-2">
-              <h1 className="text-2xl font-bold tracking-tight text-foreground">
+              <h1 className="text-2xl font-bold tracking-tight text-foreground font-sans">
                 {APP_NAME}
               </h1>
               <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary border border-primary/20 font-semibold tracking-wider uppercase">
